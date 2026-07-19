@@ -1758,11 +1758,11 @@ def get_servers():
             
     return jsonify({"servers": user_servers})
 
-# ─── ফিক্সড রুটস (কনফ্লিক্ট দূর করা হলো) ───────────────────────────────────────────
+# ─── ফিক্সড রুটস (কনф্লিক্ট দূর করা হলো) ───────────────────────────────────────────
 @app.route('/premium')
 @login_required
 def premium(): 
-    return redirect(url_for('dashboard.html')) 
+    return redirect(url_for('dashboard')) 
 
 @app.route('/free/')
 def free(): return render_template('free.html')
@@ -1950,9 +1950,11 @@ def run_telegram_bot():
     
     print("Telegram Bot is running smoothly in an isolated thread...")
     
-    # ক্রুসিয়াল ফিক্স: লুপকে ফরেভার দিয়ে ব্লক না করে রান_পোলিং সচল রাখা হলো
-    application.run_polling(allowed_updates=Update.ALL_TYPES)
-
+    # ক্রুসিয়াল ফিক্স: লুপ জ্যাম বা ব্লকিং এড়াতে asyncio ইভেন্ট ড্রাইভেন শুরু করা হলো
+    loop.run_until_complete(application.initialize())
+    loop.run_until_complete(application.start())
+    loop.run_until_complete(application.updater.start_polling(allowed_updates=Update.ALL_TYPES))
+    loop.run_forever()
 
 # ─── Healthcheck Route Added (রেলওয়ে রান করানোর জন্য ক্রুসিয়াল ফিক্স) ───────────────────
 @app.route('/health')
