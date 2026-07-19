@@ -2,7 +2,12 @@ flask==3.0.3
 gunicorn==22.0.0
 werkzeug==3.0.3
 psutil>=5.9.0
-flask-sqlalchemy
+Flask
+Flask-SQLAlchemy
+requests
+psutil
+python-telegram-bot
+werkzeug
 pathlib
 urllib3
 PyJWT
@@ -15,4 +20,3 @@ python-cfonts
 requests
 python-dotenv
 protobuf-decoder
-python-telegram-bot

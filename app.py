@@ -423,6 +423,7 @@ def update_user_profile():
         for sname, scfg in list(data["servers"].items()):
             if scfg.get("owner") == username:
                 data["servers"][sname]["owner"] = new_name
+        data["servers"][sname]["owner"] = new_name
         save_data(data)
         session["username"] = new_name
         return jsonify({"success": True})
