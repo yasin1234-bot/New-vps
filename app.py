@@ -38,7 +38,7 @@ app.secret_key = "yasin-vps-secret-2025"
 
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=24)
 
-# গ্লোবাল ডিকশনারি (সার্ভার ভিত্তিক লগের জন্য - যাতে মিক্সআপ না হয়)
+# গ্লোবাল ডিকশনারি (সার্ভার ভিত্তিক লগের জন্য)
 SERVER_LOGS = {}
 
 def get_and_update_count():
@@ -423,7 +423,6 @@ def update_user_profile():
         for sname, scfg in list(data["servers"].items()):
             if scfg.get("owner") == username:
                 data["servers"][sname]["owner"] = new_name
-        data["servers"][sname]["owner"] = new_name
         save_data(data)
         session["username"] = new_name
         return jsonify({"success": True})
@@ -1100,6 +1099,7 @@ def delete_file(server_name):
     file_path = (base_dir / file_name).resolve()
     
     try:
+        # সুরক্ষিত পাথম্যানেজমেন্ট ফিক্স
         if base_dir in file_path.parents or file_path == base_dir:
             if file_path.exists():
                 if file_path.is_dir():
@@ -1937,8 +1937,9 @@ async def handle_admin_reply(update: Update, context: ContextTypes.DEFAULT_TYPE)
         await update.message.reply_text("❌ Sorry, no user ID associated with this message was found.")
 
 
-# থ্রেডের ভেতর রান করার জন্য সুনির্দিষ্ট এসিনক্রোনাস ফাংশন
+# থ্রেড সেফ ইভেন্ট লুপ ফিক্সড ফাংশন
 def run_telegram_bot():
+    # সম্পূর্ণ নতুন ইভেন্ট লুপ ম্যানেজমেন্ট
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     
@@ -1953,13 +1954,9 @@ def run_telegram_bot():
         MessageHandler(filters.TEXT & ~filters.COMMAND & ~filters.Chat(ADMIN_ID), handle_user_message)
     )
     
-    print("Telegram Bot is initializing via custom thread loop...")
-    
-    loop.run_until_complete(application.initialize())
-    loop.run_until_complete(application.start())
-    # run_polling এর চেয়ে পোলিং লাইফসাইকেল রেলওয়ের জন্য এভাবে হ্যান্ডেল করা ভালো
-    loop.run_until_complete(application.updater.start_polling(allowed_updates=Update.ALL_TYPES))
-    loop.run_forever()
+    print("Telegram Bot is running smoothly on background thread...")
+    # লুপ ব্লক না করে সঠিক মেথড ব্যবহার করা হয়েছে
+    application.run_polling(close_loop=False)
 
 # ─── Healthcheck Route ───────────────────────────────────────────────────
 @app.route('/health')
@@ -1977,6 +1974,6 @@ if __name__ == '__main__':
     bot_thread.daemon = True
     bot_thread.start()
 
-    # রেলওয়ের পোর্ট রিড করা
+    # পোর্ট কনফিগারেশন 
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=False, use_reloader=False)
