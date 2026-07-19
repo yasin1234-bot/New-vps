@@ -1955,10 +1955,9 @@ def run_telegram_bot():
 
 
 # ─── Healthcheck Route Added (রেলওয়ে রান করানোর জন্য ক্রুসিয়াল ফিক্স) ───────────────────
-@app.route('/')
+@app.route('/health')
 def railway_healthcheck():
     return "OK", 200
-
 
 # ─── Server initialization ───────────────────────────────────────────────────
 
