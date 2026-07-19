@@ -38,8 +38,8 @@ app.secret_key = "yasin-vps-secret-2025"
 
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=24)
 
-# গ্লোবাল ভেরিয়েবল (PIP এবং স্পেশাল পাইথন আউটপুটের জন্য)
-process_output = ""
+# গ্লোবাল ডিকশনারি (সার্ভার ভিত্তিক লগের জন্য - যাতে মিক্সআপ না হয়)
+SERVER_LOGS = {}
 
 def get_and_update_count():
     file_path = "counter.txt"
@@ -1120,7 +1120,7 @@ def delete_file(server_name):
 @login_required
 @server_access_guard
 def install_package(name):
-    global process_output
+    global SERVER_LOGS
     data = load_data()
     cfg = data["servers"].get(name)
     if not cfg: return jsonify({"success": False, "error": "Not found"}), 404
@@ -1133,10 +1133,10 @@ def install_package(name):
     extract_dir.mkdir(parents=True, exist_ok=True)
 
     install_target = f"{pkg_name}=={pkg_ver}" if pkg_ver else pkg_name
-    process_output = f"📦 [PIP]: Installing {install_target}...\n"
+    SERVER_LOGS[name] = f"📦 [PIP]: Installing {install_target}...\n"
 
     def run_installation():
-        global process_output
+        global SERVER_LOGS
         try:
             cmd = ["pip", "install", install_target]
             proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
@@ -1146,14 +1146,14 @@ def install_package(name):
                 if line == '' and proc.poll() is not None:
                     break
                 if line:
-                    process_output += line
+                    SERVER_LOGS[name] += line
             
             err = proc.stderr.read()
             if err:
-                process_output += f"\nℹ️ [LOG/WARN]: {err}"
+                SERVER_LOGS[name] += f"\nℹ️ [LOG/WARN]: {err}"
                 
             if proc.returncode == 0:
-                process_output += f"\n✅ [SUCCESS]: {install_target} ইনস্টলেশন সফল হয়েছে!"
+                SERVER_LOGS[name] += f"\n✅ [SUCCESS]: {install_target} ইনস্টলেশন সফল হয়েছে!"
                 
                 pkgs = cfg.get("packages", [])
                 pkgs = [p for p in pkgs if p["name"] != pkg_name]
@@ -1171,9 +1171,9 @@ def install_package(name):
                 data["servers"][name] = cfg
                 save_data(data)
             else:
-                process_output += f"\n❌ [ERROR]: {install_target} ইনস্টল করতে সমস্যা হয়েছে।"
+                SERVER_LOGS[name] += f"\n❌ [ERROR]: {install_target} ইনস্টল করতে সমস্যা হয়েছে।"
         except Exception as e:
-            process_output += f"\n🚨 [CRITICAL ERROR]: {str(e)}"
+            SERVER_LOGS[name] += f"\n🚨 [CRITICAL ERROR]: {str(e)}"
 
     t = threading.Thread(target=run_installation)
     t.start()
@@ -1266,23 +1266,27 @@ def auto_reset_status(name):
 # ─── Start / Stop ───
 
 def read_live_output(process, name):
-    global process_output
+    global SERVER_LOGS
     while True:
         output = process.stdout.readline()
         if output == '' and process.poll() is not None:
             break
         if output:
-            process_output += output
+            if name not in SERVER_LOGS:
+                SERVER_LOGS[name] = ""
+            SERVER_LOGS[name] += output
             
     stderr = process.stderr.read()
     if stderr:
-        process_output += "\n🚨 [PYTHON CRASH ERROR]:\n" + stderr
+        if name not in SERVER_LOGS:
+            SERVER_LOGS[name] = ""
+        SERVER_LOGS[name] += "\n🚨 [PYTHON CRASH ERROR]:\n" + stderr
 
 @app.route("/server/<name>/start", methods=["POST"])
 @login_required
 @server_access_guard
 def start_server(name):
-    global process_output
+    global SERVER_LOGS
     data = load_data()
     cfg = data["servers"].get(name)
     if not cfg: return jsonify({"success": False, "error": "Not found"}), 404
@@ -1313,7 +1317,7 @@ def start_server(name):
     env["PORT"] = str(cfg.get("port", 8080))
     
     try:
-        process_output = ""  
+        SERVER_LOGS[name] = ""  
         with open(log_path, "w") as lf:
             lf.write(f"\n{'='*50}\n[{datetime.now().isoformat()}] Starting Fresh Context: {' '.join(cmd)}\n{'='*50}\n")
         log_file = open(log_path, "a")
@@ -1395,11 +1399,11 @@ def stop_server(name):
 @login_required
 @server_access_guard
 def get_logs(name):
-    global process_output
+    global SERVER_LOGS
     log_path = SERVERS_DIR / name / "logs.txt"
     
-    if process_output:
-        return jsonify({"logs": process_output})
+    if name in SERVER_LOGS and SERVER_LOGS[name]:
+        return jsonify({"logs": SERVER_LOGS[name]})
         
     if not log_path.exists(): return jsonify({"logs": ""})
     try:
@@ -1416,8 +1420,9 @@ def get_logs(name):
 @login_required
 @server_access_guard
 def clear_logs(name):
-    global process_output
-    process_output = ""
+    global SERVER_LOGS
+    if name in SERVER_LOGS:
+        SERVER_LOGS[name] = ""
     log_path = SERVERS_DIR / name / "logs.txt"
     try: log_path.write_text("")
     except Exception: pass
@@ -1949,9 +1954,9 @@ def run_telegram_bot():
     
     print("Telegram Bot is initializing via custom thread loop...")
     
-    # রেলওয়ের ব্যাকগ্রাউন্ডে নন-ব্লকিং রাখার নিরাপদ উপায়
     loop.run_until_complete(application.initialize())
     loop.run_until_complete(application.start())
+    # run_polling এর চেয়ে পোলিং লাইফসাইকেল রেলওয়ের জন্য এভাবে হ্যান্ডেল করা ভালো
     loop.run_until_complete(application.updater.start_polling(allowed_updates=Update.ALL_TYPES))
     loop.run_forever()
 
