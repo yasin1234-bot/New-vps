@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Maintenance | TAHMID CODEX</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --main-color: #ef4444; 
+      --msg-color: #00ff41; 
+      --name-color: #a855f7; /* নামের জন্য নতুন আলাদা ভেরিয়েবল */
+    }
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{background:#080808;font-family:'JetBrains Mono',monospace;min-height:100vh;display:flex;align-items:center;justify-content:center}
+    
+    .card{
+      background:#0a0a0a;
+      border:2px solid var(--main-color);
+      border-radius:12px;
+      padding:48px 40px;
+      text-align:center;
+      max-width:400px;
+      box-shadow:0 0 40px var(--main-color);
+      transition: all 0.8s ease;
+    }
+    
+    .icon{font-size:56px;margin-bottom:16px;filter:drop-shadow(0 0 16px var(--main-color)); transition: all 0.8s ease;}
+    
+    .title{
+      font-size:20px;
+      font-weight:700;
+      color: var(--main-color);
+      letter-spacing:3px;
+      text-shadow:0 0 12px var(--main-color);
+      margin-bottom:8px;
+      transition: all 0.8s ease;
+    }
+    
+    .sub{
+      font-size:12px;
+      letter-spacing:2px;
+      margin-bottom:24px;
+    }
+
+    /* এখানে নামের কালার ডাইনামিক করা হয়েছে */
+    .highlight-name {
+      color: var(--name-color); 
+      font-weight: bold;
+      transition: all 0.8s ease;
+      text-shadow: 0 0 8px var(--name-color);
+    }
+    
+    .message{
+      background:#111;
+      border:1px solid #2a2a2a;
+      border-radius:8px;
+      padding:14px 16px;
+      font-size:14px;
+      color: var(--msg-color);
+      line-height:1.6;
+      margin-bottom:24px;
+      font-weight: bold;
+      transition: all 0.8s ease;
+    }
+    
+    .cursor{
+      display:inline-block;
+      width:10px;
+      height:16px;
+      background: var(--name-color);
+      margin-left:4px;
+      vertical-align:middle;
+      animation:blink 1s step-end infinite;
+    }
+    
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+    .footer {
+      font-size:11px;
+      color: var(--main-color);
+      letter-spacing:1px;
+      font-weight: bold;
+      transition: all 0.8s ease;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">🔧</div>
+    <div class="title">MAINTENANCE MODE</div>
+    
+    <div class="sub">
+       <span class="highlight-name">TAHMID CODEX SYSTEMS UPDATE</span>
+       <span class="cursor"></span>
+    </div>
+
+    <div class="message">{{ message }}</div>
+    
+    <div class="footer">PLEASE CHECK BACK LATER</div>
+  </div>
+
+  <script>
+    const themeColors = [
+      '#ef4444', '#a855f7', '#00ff41', '#38bdf8', 
+      '#fbbf24', '#06b6d4', '#ec4899', '#84cc16'
+    ];
+
+    let colorIndex = 0;
+
+    function changeThemeColor() {
+      colorIndex = (colorIndex + 1) % themeColors.length;
+      
+      // বর্ডার এবং ফুটারের রং
+      const nextMainColor = themeColors[colorIndex];
+      
+      // নামের রং (প্রধান রং থেকে ৪ ধাপ এগিয়ে রাখা হয়েছে যাতে অমিল থাকে)
+      const nextNameColor = themeColors[(colorIndex + 4) % themeColors.length];
+      
+      // মেসেজ বা 'Off' টেক্সটের রং (২ ধাপ এগিয়ে রাখা হয়েছে)
+      const nextMsgColor = themeColors[(colorIndex + 2) % themeColors.length];
+      
+      // তিনটি আলাদা ভ্যারিয়েবল সেট করা
+      document.documentElement.style.setProperty('--main-color', nextMainColor);
+      document.documentElement.style.setProperty('--name-color', nextNameColor);
+      document.documentElement.style.setProperty('--msg-color', nextMsgColor);
+    }
+
+    // প্রতি ২ সেকেন্ড অন্তর রং পরিবর্তন হবে
+    setInterval(changeThemeColor, 2000);
+  </script>
+</body>
+</html>

@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+  <title>HOSTING VIP | Purchase Coins</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+    :root { 
+      --bg: #050505; 
+      --card: rgba(18, 18, 22, 0.7); 
+      --accent: #6366f1; 
+      --border: rgba(255, 255, 255, 0.08); 
+      --text-main: #ffffff;
+      --text-dim: #a1a1aa;
+      --glass: blur(12px);
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    body { 
+        margin: 0; 
+        font-family: 'Plus Jakarta Sans', sans-serif; 
+        background: var(--bg); 
+        color: var(--text-main);
+        min-height: 100vh; 
+        overflow-x: hidden;
+        padding-bottom: 30px;
+    }
+
+    .topbar { 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+        padding: 12px 20px; 
+        background: rgba(10, 10, 12, 0.8); 
+        backdrop-filter: var(--glass); 
+        position: sticky; 
+        top: 0; 
+        z-index: 1000; 
+        border-bottom: 1px solid var(--border); 
+    }
+    
+    .logo-box { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 18px; }
+    .logo-icon { background: linear-gradient(135deg, #00ff7f, #059669); width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; }
+
+    .btn-back {
+        background: #1c1c1e; 
+        width: 36px; 
+        height: 36px; 
+        border-radius: 8px; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        color: #fff; 
+        border: 1px solid var(--border); 
+        cursor: pointer;
+        text-decoration: none;
+        transition: 0.2s;
+    }
+    .btn-back:active { transform: scale(0.95); }
+
+    .container { padding: 30px 20px; max-width: 900px; margin: auto; }
+
+    .page-header { text-align: center; margin-bottom: 40px; }
+    .page-header h2 { font-weight: 800; font-size: 28px; margin: 0 0 10px 0; color: #fff; }
+    .page-header p { color: var(--text-dim); font-size: 14px; margin: 0; }
+
+    .coin-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 20px;
+    }
+
+    .coin-card {
+        background: #090e14;
+        border: 1px solid rgba(0, 255, 127, 0.2);
+        border-radius: 20px;
+        padding: 25px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .coin-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 255, 127, 0.1);
+    }
+    
+    /* Popular Badge for middle package */
+    .popular-badge {
+        position: absolute;
+        top: 15px;
+        right: -30px;
+        background: #f59e0b;
+        color: #000;
+        font-size: 10px;
+        font-weight: 800;
+        padding: 5px 30px;
+        transform: rotate(45deg);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .coin-icon {
+        font-size: 45px;
+        color: #00ff7f;
+        margin-bottom: 15px;
+        display: block;
+        text-shadow: 0 0 20px rgba(0, 255, 127, 0.4);
+    }
+
+    .coin-amount {
+        font-size: 26px;
+        font-weight: 800;
+        color: #fff;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        margin-bottom: 5px;
+    }
+    
+    .coin-label {
+        font-size: 12px;
+        color: var(--text-dim);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 600;
+        margin-bottom: 20px;
+    }
+
+    .price-box {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 12px;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .price-label { font-size: 12px; color: var(--text-dim); }
+    .price-value { font-size: 18px; font-weight: 800; color: #fff; font-family: 'JetBrains Mono', monospace; }
+
+    .btn-buy {
+        width: 100%;
+        padding: 14px 20px;
+        border-radius: 12px;
+        border: none;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        font-size: 15px;
+        transition: 0.2s;
+        text-decoration: none;
+        background: linear-gradient(135deg, #00b09b, #96c93d);
+        color: #000;
+    }
+    .btn-buy:active { transform: scale(0.98); }
+    .btn-buy i { font-size: 18px; }
+
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+    <div class="logo-box">
+        <div class="logo-icon"><i class="fas fa-coins"></i></div>
+        <span>HOSTING VIP</span>
+    </div>
+    <a href="/" class="btn-back"><i class="fas fa-arrow-left"></i></a>
+</div>
+
+<div class="container">
+    <div class="page-header animate__animated animate__fadeInDown">
+        <h2>Purchase Coins</h2>
+        <p>Top up your account balance to buy or upgrade premium servers.</p>
+    </div>
+
+    <div class="coin-grid">
+        
+        <div class="coin-card animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
+            <i class="fas fa-coins coin-icon"></i>
+            <div class="coin-amount">30</div>
+            <div class="coin-label">Coins</div>
+            
+            <div class="price-box">
+                <span class="price-label">Price:</span>
+                <span class="price-value">$1.00</span>
+            </div>
+            
+            <a href="https://t.me/Buy_Coins5_bot?start=buy_30_USER_EMAIL" target="_blank" class="btn-buy">
+                <i class="fab fa-telegram-plane"></i> Buy Now
+            </a>
+        </div>
+
+        <div class="coin-card animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
+            <i class="fas fa-hand-holding-usd coin-icon" style="color: #3b82f6; text-shadow: 0 0 20px rgba(59, 130, 246, 0.4);"></i>
+            <div class="coin-amount">80</div>
+            <div class="coin-label">Coins</div>
+            
+            <div class="price-box">
+                <span class="price-label">Price:</span>
+                <span class="price-value">$2.50</span>
+            </div>
+            
+            <a href="https://t.me/Buy_Coins5_bot?start=buy_80_USER_EMAIL" target="_blank" class="btn-buy" style="background: linear-gradient(135deg, #3b82f6, #6366f1); color: #fff;">
+                <i class="fab fa-telegram-plane"></i> Buy Now
+            </a>
+        </div>
+
+        <div class="coin-card animate__animated animate__fadeInUp" style="animation-delay: 0.3s; border-color: rgba(245, 158, 11, 0.4);">
+            <div class="popular-badge">Popular</div>
+            <i class="fas fa-sack-dollar coin-icon" style="color: #f59e0b; text-shadow: 0 0 20px rgba(245, 158, 11, 0.4);"></i>
+            <div class="coin-amount">200</div>
+            <div class="coin-label">Coins</div>
+            
+            <div class="price-box">
+                <span class="price-label">Price:</span>
+                <span class="price-value">$5.00</span>
+            </div>
+            
+            <a href="https://t.me/Buy_Coins5_bot?start=buy_200_USER_EMAIL" target="_blank" class="btn-buy" style="background: linear-gradient(135deg, #f59e0b, #ef4444); color: #fff;">
+                <i class="fab fa-telegram-plane"></i> Buy Now
+            </a>
+        </div>
+
+        <div class="coin-card animate__animated animate__fadeInUp" style="animation-delay: 0.4s;">
+            <i class="fas fa-gem coin-icon" style="color: #a855f7; text-shadow: 0 0 20px rgba(168, 85, 247, 0.4);"></i>
+            <div class="coin-amount">500</div>
+            <div class="coin-label">Coins</div>
+            
+            <div class="price-box">
+                <span class="price-label">Price:</span>
+                <span class="price-value">$10.00</span>
+            </div>
+            
+            <a href="https://t.me/Buy_Coins5_bot?start=buy_500_USER_EMAIL" target="_blank" class="btn-buy" style="background: linear-gradient(135deg, #8b5cf6, #d946ef); color: #fff;">
+                <i class="fab fa-telegram-plane"></i> Buy Now
+            </a>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

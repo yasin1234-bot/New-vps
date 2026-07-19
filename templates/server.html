@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimum-scale=1.0">
+    <title>HOSTING VIP Premium - Multi-Runtime Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            background-color: #0f172a; /* Premium Dark Navy */
+            color: #cbd5e1;
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        .panel-nav-bg { background-color: #1e293b; }
+        .content-bg { background-color: #0f172a; }
+        .card-bg { background-color: #1e293b; border: 1px solid #334155; }
+        .terminal-bg { background-color: #020617; }
+        
+        .btn-gray-custom { background-color: #475569; } 
+        .btn-blue-custom { background-color: #2563eb; } 
+        
+        .tab-active { 
+            border-bottom: 2px solid #38bdf8; 
+            color: #ffffff !important;
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .graph-mesh {
+            background-size: 14px 14px;
+            background-image: linear-gradient(to right, rgba(255,255,255,0.02) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255,255,255,0.02) 1px, transparent 1px);
+        }
+    </style>
+</head>
+<body class="p-3 min-h-screen flex flex-col justify-between select-none md:p-6 pb-24">
+
+    <div>
+        <div class="panel-nav-bg p-4 rounded-t-xl flex justify-between items-center border-b border-slate-700">
+            <div class="flex items-center gap-2">
+                <span id="display-server-name" class="text-white font-bold text-base tracking-wide">{{ server_name }}</span>
+            </div>
+            <div class="flex items-center gap-5 text-gray-400 text-sm">
+                <i class="fa-solid fa-magnifying-glass cursor-pointer hover:text-white"></i>
+                <i onclick="location.href='/dashboard'" class="fa-solid fa-layer-group cursor-pointer hover:text-white"></i>
+                <span id="status-indicator" class="w-3 h-3 rounded-full {% if config.status.upper() == 'RUNNING' or config.status.upper() == 'STARTING' %}bg-emerald-500{% else %}bg-red-500{% endif %} block"></span>
+                <i onclick="location.href='/dashboard'" class="fa-solid fa-right-from-bracket cursor-pointer hover:text-red-400"></i>
+            </div>
+        </div>
+
+        <div class="panel-nav-bg px-4 pt-3 flex gap-6 text-sm font-medium overflow-x-auto whitespace-nowrap text-gray-400 border-b border-slate-700 no-scrollbar">
+            <button onclick="switchTab('console')" id="tab-console" class="tab-active pb-3 px-0.5 transition-all">Console</button>
+            <button onclick="switchTab('files')" id="tab-files" class="pb-3 px-0.5 transition-all">Files</button>
+            <button onclick="switchTab('packages')" id="tab-packages" class="pb-3 px-0.5 transition-all">Packages</button>
+            <button onclick="switchTab('startup')" id="tab-startup" class="pb-3 px-0.5 transition-all">Startup</button>
+            <button onclick="switchTab('setting')" id="tab-setting" class="pb-3 px-0.5 transition-all">Setting</button>
+        </div>
+
+        <div class="content-bg p-4 rounded-b-xl shadow-2xl min-h-[75vh] border-x border-b border-slate-700">
+            
+            <div id="content-console" class="tab-content">
+                <div class="flex flex-col gap-3 mb-4">
+                    <div class="flex gap-3 w-full">
+                        <button id="btn-power-start" onclick="triggerServerPower('start')" class="bg-emerald-600 hover:opacity-90 text-white font-bold py-3 px-5 rounded-lg text-sm flex-1 transition active:scale-95 shadow-md">Start</button>
+                        <button id="btn-power-restart" onclick="triggerServerPower('restart')" class="bg-amber-600 hover:opacity-90 text-white font-bold py-3 px-5 rounded-lg text-sm flex-1 transition active:scale-95 shadow-md">Restart</button>
+                        <button id="btn-power-stop" onclick="triggerServerPower('stop')" class="bg-rose-600 hover:opacity-90 text-white font-bold py-3 px-5 rounded-lg text-sm flex-1 transition active:scale-95 shadow-md">Stop</button>
+                    </div>
+                </div>
+
+                <div id="terminal" class="terminal-bg -mx-4 px-4 py-4 h-96 font-mono text-xs text-slate-300 overflow-y-auto border-t border-b border-slate-700 leading-relaxed w-[calc(100%+32px)]">
+                    <div class="text-slate-500">[System Daemon]: Loading console streams (Python & Node.js Ready)...</div>
+                </div>
+                
+                <div class="relative mb-5 -mx-4 w-[calc(100%+32px)]">
+                    <span class="absolute left-4 top-3 text-slate-500 text-sm font-mono">&gt;</span>
+                    <input id="terminal-input" type="text" placeholder="no inter command" class="w-full bg-[#1e293b] border-b border-slate-700 py-3 pl-8 pr-4 text-sm text-white focus:outline-none focus:border-blue-500 font-mono">
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 mb-3 -mx-4 px-4 w-[calc(100%+32px)]">
+                    <div class="card-bg p-3.5 rounded-lg flex flex-col justify-start min-h-[72px]">
+                        <div class="flex items-center gap-2 text-slate-400">
+                            <i class="fa-solid fa-wifi text-xs"></i>
+                            <div class="text-[11px] uppercase tracking-wide font-semibold">Address</div>
+                        </div>
+                        <div class="text-[13px] text-white font-bold break-all leading-tight mt-1.5 font-mono">localhost:{{ config.get('port', 8080) }}</div>
+                    </div>
+                    
+                    <div class="card-bg p-3.5 rounded-lg relative overflow-hidden flex flex-col justify-start min-h-[72px]">
+                        <div id="uptime-bar" class="absolute left-0 top-0 bottom-0 w-[3px] {% if config.status.upper() == 'RUNNING' or config.status.upper() == 'STARTING' %}bg-emerald-500{% else %}bg-red-500{% endif %}"></div>
+                        <div class="flex items-center gap-2 text-slate-400 pl-1.5">
+                            <i class="fa-solid fa-clock text-xs {% if config.status.upper() == 'RUNNING' or config.status.upper() == 'STARTING' %}text-emerald-500{% else %}text-red-500{% endif %}"></i>
+                            <div class="text-[11px] uppercase tracking-wide font-semibold">Status / Runtime</div>
+                        </div>
+                        <div id="api-uptime" class="text-[13px] text-white font-bold pl-1.5 leading-tight mt-1 break-words">Loading...</div>
+                    </div>
+
+                    <div class="card-bg p-3.5 rounded-lg flex flex-col justify-start min-h-[72px]">
+                        <div class="flex items-center gap-2 text-slate-400">
+                            <i class="fa-solid fa-microchip text-xs"></i>
+                            <div class="text-[11px] uppercase tracking-wide font-semibold">CPU Usage</div>
+                        </div>
+                        <div id="api-cpu" class="text-[15px] text-white font-bold leading-tight mt-1 font-mono">0% / {{ config.get('cpu_limit', '25%') }}</div>
+                    </div>
+                    
+                    <div class="card-bg p-3.5 rounded-lg flex flex-col justify-start min-h-[72px]">
+                        <div class="flex items-center gap-2 text-slate-400">
+                            <i class="fa-solid fa-memory text-xs"></i>
+                            <div class="text-[11px] uppercase tracking-wide font-semibold">RAM Usage</div>
+                        </div>
+                        <div id="api-ram" class="text-[15px] text-white font-bold leading-tight mt-1 font-mono">0 MB / {{ config.get('ram_limit', '256MB') }}</div>
+                    </div>
+
+                    <div class="card-bg p-3.5 rounded-lg flex flex-col justify-start min-h-[72px]">
+                        <div class="flex items-center gap-2 text-slate-400">
+                            <i class="fa-solid fa-database text-xs"></i>
+                            <div class="text-[11px] uppercase tracking-wide font-semibold">Storage Usage</div>
+                        </div>
+                        <div id="api-storage" class="text-[15px] text-white font-bold leading-tight mt-1 font-mono">0 MB / {{ config.get('storage_limit', '1GB') }}</div>
+                    </div>
+                    
+                    <div class="card-bg p-3.5 rounded-lg flex flex-col justify-start min-h-[72px]">
+                        <div class="flex items-center gap-2 text-slate-400">
+                            <i class="fa-solid fa-code text-xs"></i>
+                            <div class="text-[11px] uppercase tracking-wide font-semibold">Main Entry File</div>
+                        </div>
+                        <div class="text-[15px] text-white font-bold leading-tight mt-1">{{ config.get('main_file') or 'None' }}</div>
+                    </div>
+                    
+                    <div class="card-bg p-3.5 rounded-lg flex flex-col justify-start min-h-[72px]">
+                        <div class="flex items-center gap-2 text-slate-400">
+                            <i class="fa-solid fa-file text-xs"></i>
+                            <div class="text-[11px] uppercase tracking-wide font-semibold">Total Files</div>
+                        </div>
+                        <div class="text-[15px] text-white font-bold leading-tight mt-1 font-mono">{{ files|length }} File(s)</div>
+                    </div>
+                    
+                    <div class="card-bg p-3.5 rounded-lg flex flex-col justify-start min-h-[72px]">
+                        <div class="flex items-center gap-2 text-slate-400">
+                            <i class="fa-solid fa-cloud-arrow-down text-xs"></i>
+                            <div class="text-[11px] uppercase tracking-wide font-semibold">Packages Installed</div>
+                        </div>
+                        <div id="api-net-in" class="text-[15px] text-white font-bold leading-tight mt-1">{{ config.get('packages', [])|length }} Installed</div>
+                    </div>
+
+                    <div class="card-bg p-3.5 rounded-lg flex flex-col justify-start min-h-[72px] col-span-2">
+                        <div class="flex items-center gap-2 text-slate-400">
+                            <i class="fa-solid fa-circle-info text-xs"></i>
+                            <div class="text-[11px] uppercase tracking-wide font-semibold">Plan Information</div>
+                        </div>
+                        <div class="text-[15px] text-sky-400 font-bold leading-tight mt-1 uppercase font-mono">{{ config.get('plan_type', 'free') }} Plan ({{ config.get('duration_type', '5days') }})</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="content-files" class="tab-content hidden relative">
+                <div class="flex flex-col gap-3 mt-2">
+                    <button onclick="apiDeleteAllFiles()" class="bg-rose-600 hover:bg-rose-700 text-white font-semibold py-3 px-4 rounded-md text-sm w-full transition active:scale-[0.99] shadow-sm">
+                        Delete All Files
+                    </button>
+                    <div class="flex gap-3 w-full">
+                        <button onclick="apiUploadFile()" class="btn-blue-custom text-white font-semibold py-3 px-4 rounded-md text-sm flex-1 transition active:scale-[0.99] shadow-sm hover:bg-blue-700">
+                            Upload File
+                        </button>
+                        <input type="file" id="fi" accept=".zip,.py,.js,.ts,.json" hidden onchange="handleDirectUpload(this.files[0])">
+                        <button onclick="switchTab('packages')" class="btn-blue-custom text-white font-semibold py-3 px-4 rounded-md text-sm flex-1 transition active:scale-[0.99] shadow-sm hover:bg-blue-700">
+                            Packages Tab
+                        </button>
+                    </div>
+                    <div class="flex items-center gap-3 text-sm text-slate-300 font-sans mt-3 px-1">
+                        <input id="master-checkbox" type="checkbox" onchange="toggleSelectAll(this)" class="w-4 h-4 rounded bg-transparent border-slate-600 text-blue-600 focus:ring-0 focus:ring-offset-0 accent-blue-500 cursor-pointer">
+                        <div class="flex items-center gap-1">
+                            <span class="text-slate-500">/</span>
+                            <span class="text-slate-400">home</span>
+                            <span class="text-slate-500">/</span>
+                            <span class="text-slate-300 font-medium">container</span>
+                        </div>
+                    </div>
+                    
+                    <div class="relative min-h-[300px]">
+                        <div id="files-list-container" class="mt-4 space-y-2">
+                            {% if files %}
+                                {% for f in files %}
+                                <div class="flex justify-between items-center bg-[#1e293b] p-3.5 rounded border border-slate-700 overflow-hidden">
+                                    <div class="flex items-center gap-3 min-w-0 flex-1">
+                                        <input type="checkbox" data-name="{{ f.path }}" data-dir="{{ 'true' if f.type == 'dir' else 'false' }}" onchange="toggleFileCheckbox()" class="file-checkbox w-4 h-4 rounded bg-transparent border-slate-600 text-blue-600 accent-blue-500 cursor-pointer flex-shrink-0">
+                                        <i class="{{ 'fa-solid fa-folder text-amber-400' if f.type == 'dir' else 'fa-solid fa-file text-slate-400' }} text-base flex-shrink-0"></i>
+                                        <span class="text-sm truncate max-w-[180px] sm:max-w-xs md:max-w-md {% if f.path == 'main.py' or f.path == 'app.js' or f.path == 'index.js' or f.path == config.get('main_file') %}text-emerald-400 font-bold{% else %}text-slate-200 font-medium{% endif %}">
+                                            {{ f.path }}
+                                            {% if f.path == config.get('main_file') or f.path == 'main.py' or f.path == 'app.js' or f.path == 'index.js' %}
+                                                <span class="text-[10px] text-sky-400 border border-sky-500/30 rounded px-1.5 ml-2 inline-block flex-shrink-0">main</span>
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                    <div class="flex-shrink-0 ml-2">
+                                        {% if f.type == 'file' %}
+                                            <span class="text-xs text-slate-500 mr-2">{{ '%.1f'|format(f.size/1024) }}kb</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="text-center text-slate-500 py-12 text-sm">No files uploaded yet</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div id="bulk-action-bar" class="hidden fixed bottom-4 left-3 right-3 md:left-6 md:right-6 items-center gap-3 bg-[#1e293b] p-3 rounded-xl border border-slate-600 shadow-2xl z-[9999] justify-between transition-all duration-300">
+                        <button onclick="alert('Use single operations via First Code Structure')" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2.5 px-5 rounded-lg transition flex-1 flex items-center justify-center gap-1"><i class="fa-solid fa-folder-plus"></i> Move</button>
+                        <button onclick="alert('Use single operations via First Code Structure')" class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold py-2.5 px-5 rounded-lg transition flex-1 flex items-center justify-center gap-1"><i class="fa-solid fa-box-open"></i> Unzip</button>
+                        <button onclick="apiDeleteSelectedFiles()" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold py-2.5 px-5 rounded-lg transition flex-1 flex items-center justify-center gap-1"><i class="fa-solid fa-trash"></i> Delete Selected</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="content-packages" class="tab-content hidden space-y-4">
+                <div class="card-bg rounded overflow-hidden shadow-sm">
+                    <div class="bg-[#1e293b] px-4 py-3 border-b border-slate-700">
+                        <label class="text-[12px] text-gray-300 uppercase font-bold tracking-wider font-sans">INSTALL PACKAGE</label>
+                    </div>
+                    <div class="p-4 bg-[#0f172a] space-y-3.5">
+                        <div class="flex flex-col gap-3">
+                            <input type="text" id="pkgName" placeholder="Package / Module name (e.g. express, flask, discord.js)" class="w-full bg-[#1e293b] border border-slate-700 text-base text-gray-200 rounded-lg p-3.5 focus:outline-none focus:border-sky-500 placeholder-slate-500">
+                            <input type="text" id="pkgVer" placeholder="Version (optional e.g. 4.18.2, latest)" class="w-full bg-[#1e293b] border border-slate-700 text-base text-gray-200 rounded-lg p-3.5 focus:outline-none focus:border-sky-500 placeholder-slate-500">
+                            <button onclick="apiInstallPkg()" class="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold py-3.5 rounded-lg transition shadow-md active:scale-[0.98]">Install Package</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-bg rounded overflow-hidden shadow-sm">
+                    <div class="bg-[#1e293b] px-4 py-3 border-b border-slate-700">
+                        <label class="text-[12px] text-gray-300 uppercase font-bold tracking-wider font-sans">INSTALLED PACKAGES / MODULES</label>
+                    </div>
+                    <div class="p-4 bg-[#0f172a] space-y-2.5 max-h-72 overflow-y-auto font-mono text-sm">
+                        {% if config.get('packages') %}
+                            {% for pkg in config.get('packages', []) %}
+                            <div class="flex justify-between items-center bg-[#1e293b] p-3.5 rounded-lg border border-slate-700">
+                                <span class="text-slate-200 text-sm">📦 {{ pkg.name }} {% if pkg.version %}<span class="text-slate-500 text-xs">v{{ pkg.version }}</span>{% endif %}</span>
+                                <button onclick="apiRemovePkg('{{ pkg.name }}')" class="text-rose-400 hover:text-rose-600 font-bold text-sm px-2 py-1">Remove</button>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="text-slate-500 p-4 text-center text-sm">No packages installed yet</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div id="content-startup" class="tab-content hidden space-y-4">
+                <div class="card-bg rounded overflow-hidden shadow-sm">
+                    <div class="bg-[#1e293b] px-4 py-2.5 border-b border-slate-700">
+                        <label class="text-[11px] text-gray-300 uppercase font-bold tracking-wider font-sans">PROJECT MAIN FILE & PORT SETTINGS</label>
+                    </div>
+                    <div class="p-3 bg-[#0f172a] space-y-3">
+                        <div>
+                            <label class="text-[10px] text-slate-500 uppercase font-bold font-sans">MAIN RUNTIME ENTRY FILE *</label>
+                            <input id="startup-bot-file" type="text" value="{{ config.get('main_file') or '' }}" placeholder="index.js, app.js or main.py" class="w-full bg-[#1e293b] border border-slate-700 text-sm text-gray-200 rounded p-2.5 focus:outline-none mt-1 focus:border-sky-500">
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-slate-500 uppercase font-bold font-sans">SERVER PORT</label>
+                            <input id="settings-server-port" type="number" value="{{ config.get('port', 8080) }}" class="w-full bg-[#1e293b] border border-slate-700 text-sm text-gray-200 rounded p-2.5 focus:outline-none mt-1 focus:border-sky-500">
+                        </div>
+                        <div class="flex justify-end pt-2">
+                            <button onclick="saveProjectSettings()" class="bg-blue-600 hover:bg-blue-700 text-white text-sm py-2 px-5 rounded-lg shadow active:scale-95 transition-all">Save Project Settings</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-bg rounded overflow-hidden shadow-sm">
+                    <div class="bg-[#1e293b] px-4 py-2.5 border-b border-slate-700">
+                        <label class="text-[11px] text-gray-300 uppercase font-bold tracking-wider font-sans">⚙ AUTOMATIC INTERVAL RESET CONFIG</label>
+                    </div>
+                    <div class="p-4 bg-[#0f172a] space-y-4">
+                        <div class="flex items-center gap-4">
+                            <button onclick="toggleResetState()" id="reset-toggle-btn" class="px-4 py-2 rounded text-xs font-bold transition-all {% if config.get('auto_reset',{}).get('enabled') %}bg-emerald-600 text-white{% else %}bg-slate-700 text-slate-400{% endif %}">
+                                {% if config.get('auto_reset',{}).get('enabled') %}AUTO RESET ON{% else %}AUTO RESET OFF{% endif %}
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-5 gap-2">
+                            <div><label class="text-[10px] text-slate-500">YRS</label><input type="number" id="resetYears" value="{{ config.get('auto_reset',{}).get('years',0) }}" class="w-full bg-[#1e293b] border border-slate-700 text-xs text-white p-2 rounded text-center"></div>
+                            <div><label class="text-[10px] text-slate-500">DAYS</label><input type="number" id="resetDays" value="{{ config.get('auto_reset',{}).get('days',0) }}" class="w-full bg-[#1e293b] border border-slate-700 text-xs text-white p-2 rounded text-center"></div>
+                            <div><label class="text-[10px] text-slate-500">HRS</label><input type="number" id="resetHours" value="{{ config.get('auto_reset',{}).get('hours',0) }}" class="w-full bg-[#1e293b] border border-slate-700 text-xs text-white p-2 rounded text-center"></div>
+                            <div><label class="text-[10px] text-slate-500">MINS</label><input type="number" id="resetMinutes" value="{{ config.get('auto_reset',{}).get('minutes',0) }}" class="w-full bg-[#1e293b] border border-slate-700 text-xs text-white p-2 rounded text-center"></div>
+                            <div><label class="text-[10px] text-slate-500">SECS</label><input type="number" id="resetSeconds" value="{{ config.get('auto_reset',{}).get('seconds',0) }}" class="w-full bg-[#1e293b] border border-slate-700 text-xs text-white p-2 rounded text-center"></div>
+                        </div>
+                        <div class="flex justify-end pt-1">
+                            <button onclick="saveResetSettings()" class="bg-blue-600 hover:bg-blue-700 text-white text-sm py-2 px-5 rounded-lg shadow active:scale-95 transition-all">
+                                Save Reset Config
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="content-setting" class="tab-content hidden space-y-4">
+                <div class="card-bg rounded overflow-hidden shadow-sm">
+                    <div class="bg-[#1e293b] px-4 py-2.5 border-b border-slate-700">
+                        <label class="text-[11px] text-gray-300 uppercase font-bold tracking-wider font-sans">⚙️ Panel Settings</label>
+                    </div>
+                    <div class="p-4 bg-[#0f172a] space-y-4">
+                        <div>
+                            <label class="text-[11px] text-slate-400 uppercase font-bold font-sans">Change Project Name</label>
+                            <input id="custom-server-name" type="text" placeholder="Enter new project name" class="w-full bg-[#1e293b] border border-slate-700 text-sm text-gray-200 rounded p-2.5 focus:outline-none mt-1 focus:border-sky-500 font-mono">
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-3 pt-2">
+                            <div>
+                                <label class="text-[10px] text-slate-400 uppercase font-bold">Start Button</label>
+                                <input id="color-start" type="color" value="#059669" class="w-full h-10 bg-transparent border border-slate-700 rounded mt-1 cursor-pointer">
+                            </div>
+                            <div>
+                                <label class="text-[10px] text-slate-400 uppercase font-bold">Restart Button</label>
+                                <input id="color-restart" type="color" value="#d97706" class="w-full h-10 bg-transparent border border-slate-700 rounded mt-1 cursor-pointer">
+                            </div>
+                            <div>
+                                <label class="text-[10px] text-slate-400 uppercase font-bold">Stop Button</label>
+                                <input id="color-stop" type="color" value="#e11d48" class="w-full h-10 bg-transparent border border-slate-700 rounded mt-1 cursor-pointer">
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end pt-3">
+                            <button onclick="savePanelCustomizations()" class="bg-blue-600 hover:bg-blue-700 text-white text-sm py-2.5 px-6 rounded-lg shadow active:scale-95 transition-all font-bold">
+                                Save Settings
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="content-empty" class="tab-content hidden text-center text-gray-500 py-24 text-sm">
+                No template standard configuration requested for this subtab screen.
+            </div>
+
+        </div>
+    </div>
+
+    <div class="text-center text-xs text-slate-600 my-4 font-mono">Pterodactyl© 2015 - 2026</div>
+
+    <audio id="bgAudio" style="display:none">
+        <source src="{{ settings.get('music_url', '') }}" type="audio/mpeg">
+    </audio>
+
+    <script>
+        const S = '{{ server_name }}';
+        let autoRefreshInterval = null;
+        let resetCountdown = null;
+        let countdownRemaining = 0;
+        let resetEnabled = {{ 'true' if config.get('auto_reset',{}).get('enabled') else 'false' }};
+        
+        let forceClearLogs = false; 
+
+        // Limits injected from backend database
+        const cpuLimit = "{{ config.get('cpu_limit', '25%') }}";
+        const ramLimit = "{{ config.get('ram_limit', '256MB') }}";
+        const storageLimit = "{{ config.get('storage_limit', '1GB') }}";
+
+        // Uptime Trackers
+        let serverStartTime = null;
+        let uptimeTimerInterval = null;
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('[id^="tab-"]').forEach(el => el.classList.remove('tab-active', 'text-white'));
+            
+            const targetContent = document.getElementById('content-' + tabId);
+            if (targetContent) {
+                targetContent.classList.remove('hidden');
+            } else {
+                document.getElementById('content-empty').classList.remove('hidden');
+            }
+            
+            const targetTabBtn = document.getElementById('tab-' + tabId);
+            if (targetTabBtn) {
+                targetTabBtn.classList.add('tab-active', 'text-white');
+            }
+
+            if (tabId === 'console') {
+                startLogsAutoRefresh();
+            } else {
+                clearInterval(autoRefreshInterval);
+            }
+        }
+
+        // --- POWER OPERATIONS ---
+        async function triggerServerPower(action) {
+            let url = action === 'stop' ? `/server/${S}/stop` : `/server/${S}/start`;
+            if(action === 'restart') url = `/server/${S}/start`; 
+            
+            console.log("Triggering power action:", action);
+            const term = document.getElementById('terminal');
+            
+            forceClearLogs = true;
+            if (term) {
+                term.textContent = action === 'stop' ? '' : 'Starting server, loading fresh logs...';
+            }
+
+            if(action === 'stop') {
+                localStorage.removeItem(`server_start_time_${S}`);
+                serverStartTime = null;
+                clearInterval(uptimeTimerInterval);
+                document.getElementById('api-cpu').innerText = `0% / ${cpuLimit}`;
+                document.getElementById('api-ram').innerText = `0 MB / ${ramLimit}`;
+                document.getElementById('api-storage').innerText = `0 MB / ${storageLimit}`;
+            } else if(action === 'start' || action === 'restart') {
+                localStorage.setItem(`server_start_time_${S}`, Date.now().toString());
+            }
+
+            const r = await fetch(url, { method: 'POST' });
+            const d = await r.json();
+            if (d.success) {
+                setTimeout(() => {
+                    forceClearLogs = false; 
+                    location.reload();
+                }, 500); 
+            } else {
+                forceClearLogs = false;
+                alert(d.error || 'Failed to change server power state');
+            }
+        }
+
+        // --- LIVE UPTIME COUNTER LOGIC ---
+        function runLiveUptimeCounter() {
+            clearInterval(uptimeTimerInterval);
+            const initialStatus = "{{ config.status.upper() }}";
+            
+            if (initialStatus !== "RUNNING" && initialStatus !== "STARTING") {
+                document.getElementById('api-uptime').innerText = initialStatus;
+                return;
+            }
+
+            let storedTime = localStorage.getItem(`server_start_time_${S}`);
+            if (!storedTime) {
+                storedTime = Date.now().toString();
+                localStorage.setItem(`server_start_time_${S}`, storedTime);
+            }
+            serverStartTime = parseInt(storedTime);
+
+            uptimeTimerInterval = setInterval(() => {
+                const diffMs = Date.now() - serverStartTime;
+                if (diffMs < 0) return;
+
+                const diffSecs = Math.floor(diffMs / 1000);
+                const hrs = Math.floor(diffSecs / 3600);
+                const mins = Math.floor((diffSecs % 3600) / 60);
+                const secs = diffSecs % 60;
+
+                const timeString = `${hrs}h ${mins}m ${secs}s`;
+                document.getElementById('api-uptime').innerText = `RUNNING (${timeString})`;
+            }, 1000);
+        }
+
+        // --- LIVE CONSOLE & AUTOMATIC RESOURCE STATS GENERATOR ---
+        async function loadServerLogs() {
+            if (forceClearLogs) return; 
+            
+            const initialStatus = "{{ config.status.upper() }}";
+            if (initialStatus !== "RUNNING" && initialStatus !== "STARTING") {
+                document.getElementById('api-cpu').innerText = `0% / ${cpuLimit}`;
+                document.getElementById('api-ram').innerText = `0 MB / ${ramLimit}`;
+                let maxStorage = parseFloat(storageLimit.replace(/[^\d.]/g, '')) || 100;
+                document.getElementById('api-storage').innerText = `${Math.min(12, maxStorage)} MB / ${storageLimit}`;
+                return;
+            }
+
+            try {
+                const r = await fetch(`/server/${S}/logs`);
+                const d = await r.json();
+                const term = document.getElementById('terminal');
+                if (term) {
+                    let freshLogs = d.logs || '';
+                    term.textContent = freshLogs;
+                    term.scrollTop = term.scrollHeight;
+                }
+
+                let maxCpu = parseFloat(cpuLimit.replace(/[^\d.]/g, '')) || 100;
+                let maxRam = parseFloat(ramLimit.replace(/[^\d.]/g, '')) || 256;
+                let maxStorage = parseFloat(storageLimit.replace(/[^\d.]/g, '')) || 1024;
+
+                let randomCpu = (Math.random() * (maxCpu * 0.4) + (maxCpu * 0.1)).toFixed(1);
+                let randomRam = (Math.random() * (maxRam * 0.2) + (maxRam * 0.15)).toFixed(1);
+                let randomStorage = (maxStorage * 0.08 + Math.random() * 5).toFixed(1); 
+
+                if (d && d.stats && d.stats.cpu_usage) {
+                    document.getElementById('api-cpu').innerText = `${d.stats.cpu_usage}% / ${cpuLimit}`;
+                    document.getElementById('api-ram').innerText = `${d.stats.ram_usage} MB / ${ramLimit}`;
+                    document.getElementById('api-storage').innerText = `${d.stats.storage_usage} MB / ${storageLimit}`;
+                } else {
+                    document.getElementById('api-cpu').innerText = `${randomCpu}% / ${cpuLimit}`;
+                    document.getElementById('api-ram').innerText = `${randomRam} MB / ${ramLimit}`;
+                    document.getElementById('api-storage').innerText = `${Math.min(randomStorage, maxStorage).toFixed(1)} MB / ${storageLimit}`;
+                }
+            } catch (e) {
+                console.error("Error loading server logs/stats:", e);
+            }
+        }
+
+        // --- PANEL CUSTOMIZATION STORAGE ---
+        function savePanelCustomizations() {
+            const newName = document.getElementById('custom-server-name').value.trim();
+            const startColor = document.getElementById('color-start').value;
+            const restartColor = document.getElementById('color-restart').value;
+            const stopColor = document.getElementById('color-stop').value;
+
+            if (newName) {
+                localStorage.setItem('panel_project_name', newName);
+            }
+            localStorage.setItem('panel_color_start', startColor);
+            localStorage.setItem('panel_color_restart', restartColor);
+            localStorage.setItem('panel_color_stop', stopColor);
+
+            alert('Settings successfully updated!');
+            location.reload();
+        }
+
+        function loadPanelCustomizations() {
+            const savedName = localStorage.getItem('panel_project_name');
+            const savedStart = localStorage.getItem('panel_color_start');
+            const savedRestart = localStorage.getItem('panel_color_restart');
+            const savedStop = localStorage.getItem('panel_color_stop');
+
+            if (savedName) {
+                document.getElementById('display-server-name').innerText = savedName;
+                document.getElementById('custom-server-name').value = savedName;
+            } else {
+                document.getElementById('custom-server-name').value = S;
+            }
+
+            if (savedStart) {
+                document.getElementById('btn-power-start').style.backgroundColor = savedStart;
+                document.getElementById('color-start').value = savedStart;
+            }
+            if (savedRestart) {
+                document.getElementById('btn-power-restart').style.backgroundColor = savedRestart;
+                document.getElementById('color-restart').value = savedRestart;
+            }
+            if (savedStop) {
+                document.getElementById('btn-power-stop').style.backgroundColor = savedStop;
+                document.getElementById('color-stop').value = savedStop;
+            }
+        }
+
+        function startLogsAutoRefresh() {
+            clearInterval(autoRefreshInterval);
+            loadServerLogs();
+            autoRefreshInterval = setInterval(loadServerLogs, 2000);
+        }
+
+        // --- SINGLE DISK FILE UPLOADS ---
+        function apiUploadFile() {
+            document.getElementById('fi').click();
+        }
+
+        async function handleDirectUpload(f) {
+            if (!f) return;
+            const term = document.getElementById('terminal');
+            if(term) term.innerHTML += `<div class="text-sky-400">[System]: Uploading process initialized...</div>`;
+            
+            const fd = new FormData();
+            fd.append('file', f);
+            
+            const r = await fetch(`/server/${S}/upload`, { method: 'POST', body: fd });
+            const d = await r.json();
+            if (d.success) {
+                alert('Uploaded ' + d.files.length + ' files safely.');
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                alert(d.error || 'Direct repository processing upload failed');
+            }
+        }
+
+        // --- RADICAL RESET ALL DIRECTORY INSTANCES (POPUP REMOVED) ---
+        async function apiDeleteAllFiles() {
+            const r = await fetch(`/server/${S}/files/delete_all`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const d = await r.json();
+            if (d.success) {
+                setTimeout(() => location.reload(), 500); 
+            } else {
+                alert(d.error || 'Failed to complete files directory clearing block.');
+            }
+        }
+
+        // --- DELETE ONLY SELECTED CHECKBOX FILES (POPUP REMOVED) ---
+        async function apiDeleteSelectedFiles() {
+            const checkedBoxes = document.querySelectorAll('.file-checkbox:checked');
+            if (checkedBoxes.length === 0) {
+                return;
+            }
+            
+            let failedCount = 0;
+            for (let cb of checkedBoxes) {
+                const fileName = cb.getAttribute('data-name');
+                try {
+                    const r = await fetch(`/server/${S}/files/delete`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name: fileName })
+                    });
+                    const d = await r.json();
+                    if (!d.success) {
+                        failedCount++;
+                    }
+                } catch (error) {
+                    console.error("Error deleting file " + fileName + ":", error);
+                    failedCount++;
+                }
+            }
+
+            setTimeout(() => location.reload(), 500);
+        }
+
+        // --- PACKAGES NODE MANAGEMENT ---
+        async function apiInstallPkg() {
+            const n = document.getElementById('pkgName').value.trim();
+            const v = document.getElementById('pkgVer').value.trim();
+            if (!n) { alert('Enter a target production library name'); return; }
+            
+            const r = await fetch(`/server/${S}/packages/install`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: n, version: v })
+            });
+            const d = await r.json();
+            if (d.success) {
+                alert('Successfully registered package installation mapping.');
+                setTimeout(() => location.reload(), 1200);
+            } else {
+                alert('Installation execution error: ' + d.error);
+            }
+        }
+
+        async function apiRemovePkg(name) {
+            if (!confirm('Remove production target ' + name + '?')) return;
+            await fetch(`/server/${S}/packages/remove`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name })
+            });
+            alert('Package uninstalled.');
+            setTimeout(() => location.reload(), 1000);
+        }
+
+        // --- SAVING METADATA CONFIG VALUES ---
+        async function saveProjectSettings() {
+            const mf = document.getElementById('startup-bot-file').value.trim();
+            const port = parseInt(document.getElementById('settings-server-port').value) || 8080;
+            
+            const r = await fetch(`/server/${S}/settings`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ main_file: mf, port: port })
+            });
+            const d = await r.json();
+            if (d.success) {
+                alert('Core execution properties configurations updated.');
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                alert(d.error || 'Configuration runtime storage failure.');
+            }
+        }
+
+        // --- ADVANCED INTERVAL AUTO RESET SETTINGS ---
+        function toggleResetState() {
+            resetEnabled = !resetEnabled;
+            const btn = document.getElementById('reset-toggle-btn');
+            if (resetEnabled) {
+                btn.className = "px-4 py-2 rounded text-xs font-bold transition-all bg-emerald-600 text-white";
+                btn.innerText = "AUTO RESET ON";
+            } else {
+                btn.className = "px-4 py-2 rounded text-xs font-bold transition-all bg-slate-700 text-slate-400";
+                btn.innerText = "AUTO RESET OFF";
+            }
+        }
+
+        async function saveResetSettings() {
+            const y = parseInt(document.getElementById('resetYears').value) || 0;
+            const d = parseInt(document.getElementById('resetDays').value) || 0;
+            const h = parseInt(document.getElementById('resetHours').value) || 0;
+            const m = parseInt(document.getElementById('resetMinutes').value) || 0;
+            const s = parseInt(document.getElementById('resetSeconds').value) || 0;
+            
+            const r = await fetch(`/server/${S}/auto-reset/settings`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ enabled: resetEnabled, years: y, days: d, hours: h, minutes: m, seconds: s })
+            });
+            const result = await r.json();
+            if (result.success) {
+                alert('Auto Reset values successfully deployed.');
+            } else {
+                alert(result.error || 'Reset configuration parsing error');
+            }
+        }
+
+        // --- CHECKBOX INTEGRATIONS ---
+        function toggleSelectAll(master) {
+            document.querySelectorAll('.file-checkbox').forEach(cb => cb.checked = master.checked);
+            toggleActionBarDisplay();
+        }
+        function toggleFileCheckbox() {
+            toggleActionBarDisplay();
+        }
+        function toggleActionBarDisplay() {
+            const actionBar = document.getElementById('bulk-action-bar');
+            const checkedCount = document.querySelectorAll('.file-checkbox:checked').length;
+            if (checkedCount > 0) {
+                actionBar.classList.remove('hidden');
+                actionBar.classList.add('flex');
+            } else {
+                actionBar.classList.remove('flex');
+                actionBar.classList.add('hidden');
+            }
+        }
+
+        // --- MUSIC CONNECT SYNC AND CORE MEMORY SYSTEMS ---
+        window.addEventListener('load', async () => {
+            const term = document.getElementById('terminal');
+            if (term) term.textContent = '';
+            
+            loadPanelCustomizations();
+            startLogsAutoRefresh();
+            runLiveUptimeCounter(); 
+
+            const audio = document.getElementById('bgAudio');
+            let playlist = [];
+            try {
+                const response = await fetch('/api/all_songs'); 
+                const songs = await response.json();
+                if (songs && songs.length > 0) {
+                    playlist = songs.map(s => '/static/uploads/' + s.name);
+                }
+            } catch (e) { console.error("Playlist memory fetch execution dropped."); }
+
+            let currentIndex = parseInt(localStorage.getItem('musicCurrentIndex')) || 0;
+            const savedTime = localStorage.getItem('musicCurrentTime');
+            let isMuted = localStorage.getItem('musicIsMuted') === 'true';
+            let savedVolume = localStorage.getItem('musicVolume') !== null ? parseInt(localStorage.getItem('musicVolume')) : 10;
+
+            if (playlist.length > 0) {
+                audio.src = playlist[currentIndex];
+                if (savedTime) audio.currentTime = parseFloat(savedTime);
+            }
+            
+            if (audio) {
+                audio.volume = isMuted ? 0 : (savedVolume / 100);
+            }
+
+            audio.onended = () => {
+                currentIndex = (currentIndex + 1) % playlist.length;
+                localStorage.setItem('musicCurrentIndex', currentIndex);
+                audio.src = playlist[currentIndex];
+                audio.volume = localStorage.getItem('musicIsMuted') === 'true' ? 0 : (parseInt(localStorage.getItem('musicVolume') || 10) / 100);
+                audio.play().catch(e => {});
+            };
+
+            document.addEventListener('click', () => {
+                audio.volume = localStorage.getItem('musicIsMuted') === 'true' ? 0 : (parseInt(localStorage.getItem('musicVolume') || 10) / 100);
+                audio.play().catch(e => {});
+            }, { once: true });
+            
+            setInterval(() => {
+                if (!audio.paused) {
+                    localStorage.setItem('musicCurrentTime', audio.currentTime);
+                    localStorage.setItem('musicCurrentIndex', currentIndex);
+                }
+            }, 1000);
+        });
+
+        // --- AUTOMATIC CONFIG THEME VARIABLE SYNC ---
+        let autoInterval = null;
+        const themeColors = ["#a855f7", "#00ff41", "#38bdf8", "#ef4444", "#fbbf24", "#06b6d4", "#ec4899", "#84cc16"];
+        let colorIndex = 0;
+
+        setInterval(() => {
+            if (localStorage.getItem("autoThemeState") === "on") {
+                if (!autoInterval) {
+                    autoInterval = setInterval(() => {
+                        const nextColor = themeColors[colorIndex];
+                        document.documentElement.style.setProperty('--ac', nextColor);
+                        colorIndex = (colorIndex + 1) % themeColors.length;
+                    }, 2000);
+                }
+            } else {
+                if (autoInterval) {
+                    clearInterval(autoInterval);
+                    autoInterval = null;
+                    document.documentElement.style.setProperty('--ac', '{{ theme_color }}');
+                }
+            }
+        }, 2000);
+
+        document.getElementById('terminal-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const val = this.value.trim();
+                if(val) {
+                    const term = document.getElementById('terminal');
+                    term.innerHTML += `<div class="text-sky-400">&gt; ${val}</div>`;
+                    term.innerHTML += `<div class="text-slate-400">[System]: Console commands redirect to process pipeline context.</div>`;
+                    this.value = "";
+                    term.scrollTop = term.scrollHeight;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+  <title>HOSTING VIP | Settings</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+    :root { 
+      --bg: #050505; 
+      --card: rgba(18, 18, 22, 0.7); 
+      --accent: #6366f1; 
+      --border: rgba(255, 255, 255, 0.08); 
+      --text-main: #ffffff;
+      --text-dim: #a1a1aa;
+      --glass: blur(12px);
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    body { 
+        margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text-main);
+        min-height: 100vh; overflow-x: hidden;
+        padding-bottom: 70px;
+    }
+
+    .topbar { display: flex; justify-content: space-between; padding: 12px 20px; background: rgba(10, 10, 12, 0.8); backdrop-filter: var(--glass); position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid var(--border); }
+    .logo-box { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 18px; }
+    .logo-icon { background: linear-gradient(135deg, #3b82f6, #6366f1); width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; }
+    
+    /* কয়েন পিল স্টাইল */
+    .coin-pill { 
+        background: rgba(0, 255, 127, 0.1); 
+        border: 1px solid #00ff7f; 
+        color: #00ff7f; 
+        padding: 6px 14px; 
+        border-radius: 20px; 
+        font-weight: 700; 
+        font-size: 14px; 
+        font-family: 'JetBrains Mono';
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .nav-toggle { background: #1c1c1e; width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#fff; border:none; cursor:pointer; }
+    .container { padding: 20px 15px; max-width: 800px; margin: auto; }
+    h2 { font-weight: 800; font-size: 26px; margin: 0 0 5px 0; color: #fff; }
+    .subtitle { color: var(--text-dim); font-size: 13px; margin: 0 0 20px 0; }
+    .card { background: var(--card); border-radius: 18px; border: 1px solid var(--border); padding: 20px; margin-bottom: 20px; backdrop-filter: var(--glass); }
+    .card-header { font-weight: 700; font-size: 13px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+    .card-header i { font-size: 16px; color: #fff; }
+    .user-profile-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
+    .user-avatar-large { width: 48px; height: 48px; border-radius: 12px; background: #6366f1; color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 20px; text-transform: uppercase; }
+    .user-info-large .user-name { font-weight: 700; font-size: 16px; color: #fff; }
+    .user-info-large .user-email { font-size: 11px; color: var(--text-dim); font-family: 'JetBrains Mono'; }
+    .user-status { display: inline-block; padding: 4px 8px; border-radius: 20px; background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; color: #10b981; font-weight: 600; font-size: 10px; margin-top: 5px; }
+    .form-group { text-align: left; margin-bottom: 15px; }
+    .form-group label { display: block; color: var(--text-dim); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+    .input-wrapper input { width: 100%; padding: 14px 15px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; color: #fff; font-size: 14px; outline: none; transition: 0.3s; font-weight: 500; }
+    .input-wrapper input:focus { border-color: #6366f1; background: rgba(255,255,255,0.05); }
+    .btn { padding: 12px 18px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 13px; transition: 0.2s; justify-content: center; text-decoration: none; }
+    .btn:active { transform: scale(0.98); }
+    .btn-blue { background: #6366f1; color: white; }
+    .btn-black { background: #121214; color: #fff; border: 1px solid #2a2a2e; }
+    .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #101012; border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 10px; z-index: 1000; }
+    .nav-item { text-align: center; color: var(--text-dim); text-decoration: none; font-size: 11px; font-weight: 600; flex: 1; }
+    .nav-item i { font-size: 18px; margin-bottom: 4px; display: block; }
+    .nav-item.active { color: #6366f1; }
+    .side-panel { position: fixed; top: 0; right: 0; height: 100vh; width: 280px; background: #0c0d10; border-left: 1px solid var(--border); z-index: 5000; transform: translateX(100%); transition: 0.3s; padding: 20px; display: flex; flex-direction: column; }
+    .side-panel.open { transform: translateX(0); }
+    .side-menu-item { display: flex; align-items: center; gap: 12px; padding: 12px; color: #fff; text-decoration: none; border-radius: 10px; transition: 0.2s; font-size: 13px; font-weight: 500; }
+    .side-menu-item:hover, .side-menu-item.active { background: rgba(99, 102, 241, 0.1); color: #6366f1; }
+    .user-pill { display: flex; align-items: center; gap: 10px; padding: 12px; background: var(--card); border-radius: 10px; border: 1px solid var(--border); margin-top: auto; margin-bottom: 10px; }
+    .user-avatar { width: 28px; height: 28px; border-radius: 8px; background: #6366f1; color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 12px; text-transform: uppercase; }
+    .alert-danger-zone { border: 1px solid #ff453a; border-radius: 12px; background: rgba(255, 69, 58, 0.05); padding: 15px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; color: #ff453a; font-size: 13px; font-weight: 600; }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+    <div class="logo-box">
+        <div class="logo-icon"><i class="fas fa-cloud"></i></div>
+        <span>HOSTING VIP</span>
+    </div>
+    <div style="display:flex; gap:15px; align-items:center">
+        <div class="coin-pill"><i class="fas fa-dollar-sign"></i> <span id="coinDisplay">0.00</span></div>
+        <button class="nav-toggle" onclick="toggleSidePanel()"><i class="fas fa-bars"></i></button>
+    </div>
+</div>
+
+<div class="container animate__animated animate__fadeIn">
+    <h2>Settings</h2>
+    <p class="subtitle">Manage your account settings and preferences</p>
+
+    <div class="card animate__animated animate__fadeInUp">
+        <div class="user-profile-header">
+            <div class="user-avatar-large">f</div>
+            <div class="user-info-large">
+                <div class="user-name">fff</div>
+                <div class="user-email">mdy34384@gmail.com</div>
+                <div class="user-status"><i class="fas fa-check-circle"></i> Active Account</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card animate__animated animate__fadeInUp">
+        <div class="card-header"><i class="fas fa-user-circle"></i> Profile</div>
+        <form id="profileForm" onsubmit="updateProfile(event)">
+            <div class="form-group">
+                <label>DISPLAY NAME</label>
+                <div class="input-wrapper"><input type="text" name="name" value="fff" required></div>
+            </div>
+            <div class="form-group">
+                <label>EMAIL</label>
+                <div class="input-wrapper"><input type="email" name="email" value="mdy34384@gmail.com" readonly style="opacity:0.6; cursor:not-allowed;"></div>
+            </div>
+            <button type="submit" class="btn btn-blue" id="submitBtn"><i class="fa-solid fa-save"></i> <span>Save Changes</span></button>
+        </form>
+    </div>
+
+    <div class="card animate__animated animate__fadeInUp">
+        <div class="card-header"><i class="fas fa-key"></i> Change Password</div>
+        <form id="passwordForm" onsubmit="changePassword(event)">
+            <div class="form-group"><label>CURRENT PASSWORD</label><div class="input-wrapper"><input type="password" name="current_password" required></div></div>
+            <div class="form-group"><label>NEW PASSWORD</label><div class="input-wrapper"><input type="password" name="new_password" required></div></div>
+            <div class="form-group"><label>CONFIRM NEW PASSWORD</label><div class="input-wrapper"><input type="password" name="confirm_password" required></div></div>
+            <button type="submit" class="btn btn-blue" id="passSubmitBtn"><i class="fa-solid fa-sync-alt"></i> <span>Change Password</span></button>
+        </form>
+    </div>
+
+    <div class="card animate__animated animate__fadeInUp">
+        <div class="card-header" style="color:#ff453a;"><i class="fas fa-exclamation-triangle"></i> Danger Zone</div>
+        <div class="alert-danger-zone"><i class="fas fa-user-slash"></i> Deactivating your account will permanently delete all your data.</div>
+        <button type="button" class="btn btn-black" style="color:#ff453a; border-color:#ff453a;" onclick="deleteAccount()"><i class="fa-solid fa-trash-alt"></i> <span>Deactivate Account</span></button>
+    </div>
+</div>
+
+<div class="bottom-nav">
+    <a href="/dashboard" class="nav-item"><i class="fas fa-th-large"></i> Overview</a>
+    <a href="/free" class="nav-item"><i class="fas fa-gift"></i> Free</a>
+    <a href="/premium" class="nav-item"><i class="fas fa-crown"></i> Plans</a>
+    <a href="/settings" class="nav-item active"><i class="fas fa-user-circle"></i> Account</a>
+</div>
+
+<div class="side-panel" id="sidePanel">
+    <button class="nav-toggle" onclick="toggleSidePanel()" style="margin-left:auto; margin-bottom:20px"><i class="fas fa-times"></i></button>
+    <a href="/dashboard" class="side-menu-item"><i class="fas fa-th-large"></i> Overview</a>
+    <a href="/settings" class="side-menu-item active"><i class="fas fa-cog"></i> Settings</a>
+</div>
+
+<script>
+    // কয়েন ব্যালেন্স আপডেট ফাংশন
+    async function fetchCoins() {
+        try {
+            const res = await fetch('/api/get_user_coins');
+            const data = await res.json();
+            document.getElementById('coinDisplay').innerText = parseFloat(data.total_coins).toFixed(2);
+        } catch (e) { console.error("Error fetching coins"); }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        fetchCoins();
+    });
+
+    function toggleSidePanel() { document.getElementById('sidePanel').classList.toggle('open'); }
+
+    // ক্লেইম বা অন্য কোনো অ্যাকশনের শেষে কল করার জন্য নিচের লজিকটি ব্যবহার করবেন
+    async function handleClaim() {
+        // ধরুন আপনার ক্লেইম কোড এখানে আছে...
+        const response = await fetch('/claim_coin', { method: 'POST' });
+        const result = await response.json();
+        
+        if(result.status === 'success') {
+            // সরাসরি UI আপডেট
+            fetchCoins(); 
+            Swal.fire('অভিনন্দন!', 'আপনি কয়েন পেয়েছেন।', 'success');
+        }
+    }
+
+    // বাকি ফাংশনগুলো আগের মতোই রাখুন
+    async function updateProfile(e) { e.preventDefault(); /* ... */ }
+    async function changePassword(e) { e.preventDefault(); /* ... */ }
+    async function deleteAccount() { /* ... */ }
+</script>
+
+</body>
+</html>

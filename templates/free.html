@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free Server| HOSTING VIP</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+
+        :root { 
+            --bg: #050505; 
+            --card: rgba(18, 18, 22, 0.7); 
+            --accent: #6366f1;
+            --accent-orange: #f59e0b;
+            --accent-green: #22c55e;
+            --accent-blue: #2563eb;
+            --border: rgba(255, 255, 255, 0.08);
+            --text-main: #ffffff;
+            --text-muted: #a1a1aa;
+            --text-dim: #a1a1aa;
+        }
+
+        body { 
+            background: var(--bg); 
+            color: #fff; 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            margin: 0; 
+            padding: 0px 0px 80px 0px; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            background-image: linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+            background-size: 20px 20px;
+            overflow-x: hidden;
+        }
+
+        .navbar {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 18px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(5, 5, 5, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            z-index: 99;
+            position: sticky;
+            top: 0;
+        }
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+            font-size: 19px;
+            color: #fff;
+        }
+        .navbar-brand i {
+            color: #6366f1;
+            font-size: 22px;
+        }
+        .nav-menu-toggle {
+            background: #121214;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 10px 14px;
+            border-radius: 10px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .sidebar-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 280px;
+            height: 100%;
+            background: #09090b;
+            box-shadow: -5px 0 25px rgba(0,0,0,0.5);
+            z-index: 2000;
+            transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .sidebar-menu.open {
+            right: 0;
+        }
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .sidebar-title {
+            font-weight: 800;
+            font-size: 22px;
+        }
+        .sidebar-close {
+            background: #18181b;
+            border: none;
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .menu-links {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            flex-grow: 1;
+        }
+        .menu-link-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 10px;
+            transition: 0.2s;
+        }
+        .menu-link-item:hover, .menu-link-item.active {
+            background: rgba(99, 102, 241, 0.15);
+            color: #818cf8;
+        }
+        .menu-link-item i {
+            width: 18px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .sidebar-footer {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: auto;
+        }
+        .user-profile-box {
+            background: #121214;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-sizing: border-box;
+        }
+        .avatar-circle {
+            width: 38px;
+            height: 38px;
+            background: #4385f5;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 16px;
+        }
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            flex: 1;
+        }
+        .user-name { font-weight: 700; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .user-email { font-size: 11px; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .btn-signout {
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            box-sizing: border-box;
+        }
+
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 1999;
+            display: none;
+            backdrop-filter: blur(4px);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 420px;
+            padding: 0 15px;
+            box-sizing: border-box;
+        }
+
+        .header-container {
+            text-align: center;
+            margin-top: 30px;
+            margin-bottom: 30px;
+        }
+        .gift-icon {
+            font-size: 42px;
+            margin-bottom: 12px;
+            display: inline-block;
+        }
+        .header-container h2 {
+            margin: 0 0 10px 0;
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+        .header-container h2 span {
+            color: #22c55e;
+        }
+        .header-container p {
+            margin: 0;
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.6;
+            padding: 0 10px;
+        }
+
+        .plans-wrapper {
+            display: flex; 
+            flex-direction: column;
+            gap: 20px;
+        }
+        .plan-card { 
+            background: #0b0b0e; 
+            border-radius: 20px; 
+            padding: 24px; 
+            position: relative; 
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            cursor: pointer;
+        }
+        
+        .plan-card.active.python-card { border: 1px solid rgba(59, 130, 246, 0.6); box-shadow: 0 0 15px rgba(59, 130, 246, 0.15); }
+
+        .plan-header { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between;
+            margin-bottom: 20px; 
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .plan-icon { 
+            font-size: 28px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+        }
+        .plan-title { font-weight: 700; font-size: 18px; color: #fff; }
+        .plan-subtitle { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+        
+        .select-indicator {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.2s ease;
+            background: rgba(255, 255, 255, 0.02);
+        }
+        
+        .python-card.active .select-indicator { background: #3b82f6; border-color: #3b82f6; color: #fff; }
+
+        .plan-specs { 
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            font-size: 13px; 
+            color: #d4d4d8; 
+            margin-bottom: 24px; 
+        }
+        .plan-specs div { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+        }
+        .plan-specs i { 
+            font-size: 14px; 
+            width: 16px; 
+            text-align: center;
+        }
+        
+        .python-card .plan-specs i { color: #3b82f6; }
+        
+        .claim-btn { 
+            width: 100%; 
+            padding: 14px; 
+            border-radius: 14px; 
+            border: none; 
+            color: #fff; 
+            font-weight: 700; 
+            font-size: 14px; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 8px; 
+            transition: all 0.2s ease;
+        }
+        
+        .python-card .claim-btn { background: #4385f5; }
+
+        .footer-text {
+            text-align: center;
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.25);
+            margin-top: 25px;
+            width: 100%;
+        }
+
+        .btn { padding: 14px 20px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 14px; transition: 0.2s; justify-content: center; text-decoration: none; }
+        .btn:active { transform: scale(0.98); }
+        .btn-blue { background: #6366f1; color: white; }
+        .btn-black { background: #121214; color: #fff; border: 1px solid #2a2a2e; }
+        
+        .settings-box { background: #0c0c0e; border-radius: 16px; border: 1px solid #1f1f23; padding: 20px; margin-bottom: 20px; text-align: left; }
+        .settings-title { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 16px; margin-bottom: 4px; color: #fff; }
+        .settings-desc { font-size: 11px; color: var(--text-dim); display: block; margin-bottom: 15px; }
+        .input-lbl { font-size: 10px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; margin-bottom: 6px; display: block; letter-spacing: 0.5px; }
+        .settings-input { width: 100%; background: #131316; border: 1px solid var(--border); color: #fff; padding: 12px 14px; border-radius: 10px; font-size: 13px; outline: none; margin-bottom: 15px; box-sizing: border-box; }
+        .settings-input:focus { border-color: #6366f1; }
+        .settings-input[readonly] { background: #0c0c0e; color: #71717a; border-color: rgba(255, 255, 255, 0.03); cursor: not-allowed; }
+        .active-badge { display: inline-flex; align-items: center; gap: 4px; background: rgba(16, 185, 129, 0.15); border: 1px solid #10b981; color: #10b981; padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; margin-top: 4px; text-transform: uppercase; }
+        #msgAlert { display: none; background: rgba(16, 185, 129, 0.15); border: 1px solid #10b981; color: #10b981; padding: 12px 15px; border-radius: 12px; font-size: 13px; font-weight: 600; margin-bottom: 20px; align-items: center; gap: 10px; }
+
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #101012; border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 10px; z-index: 1000; box-sizing: border-box; }
+        .nav-item { text-align: center; color: var(--text-dim); text-decoration: none; font-size: 11px; font-weight: 600; flex: 1; cursor: pointer; }
+        .nav-item i { font-size: 18px; margin-bottom: 4px; display: block; }
+        .nav-item.active { color: #6366f1; }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <div class="navbar-brand">
+        <i class="fas fa-cloud"></i>
+        <span>HOSTING VIP</span>
+    </div>
+    <button class="nav-menu-toggle" onclick="toggleSidebar(true)">
+        <i class="fas fa-bars"></i>
+    </button>
+</div>
+
+<div class="menu-overlay" id="menuOverlay" onclick="toggleSidebar(false)"></div>
+<div class="sidebar-menu" id="sidebarMenu">
+    <div>
+        <div class="sidebar-header">
+            <div class="sidebar-title">HOSTING VIP</div>
+            <button class="sidebar-close" onclick="toggleSidebar(false)"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="menu-links">
+            <a href="/dashboard" class="menu-link-item"><i class="fas fa-th-large"></i> Overview</a>
+            <a href="#" class="menu-link-item active" id="sideNavFree" onclick="switchTab('free'); toggleSidebar(false);"><i class="fas fa-gift"></i> Free Hosting</a>
+            <a href="/premium" class="menu-link-item"><i class="fas fa-crown"></i> Premium Hosting</a>
+            <a href="/free_coin" class="menu-link-item"><i class="fas fa-coins"></i> FREE COIN</a>
+            <a href="#" class="menu-link-item" id="sideNavSettings" onclick="switchTab('settings'); toggleSidebar(false);"><i class="fas fa-cog"></i> Settings</a>
+        </div>
+    </div>
+    
+    <div class="sidebar-footer">
+        <div class="user-profile-box">
+            <div class="avatar-circle" id="sidebarAvatarLetter">U</div>
+            <div class="user-info">
+                <div class="user-name" id="sidebarName">Loading... 👑</div>
+                <span class="user-email" id="sidebarUserEmail">Loading...</span>
+            </div>
+        </div>
+        <a href="/logout" class="btn-signout" onclick="handleLogout(event)"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+    </div>
+</div>
+
+<div class="container" id="freeView">
+    <div class="header-container">
+        <div class="gift-icon" id="giftBox">🎁</div>
+        <h2 id="freeHostingHeading">Free <span>Hosting</span></h2>
+        <p id="freeHostingDesc">Loading subscription details...</p>
+    </div>
+
+    <div class="plans-wrapper" id="plansWrapper" style="display: none;">
+        <div class="plan-card python-card active" id="pythonCard" onclick="selectCard('pythonCard')">
+            <div class="plan-header">
+                <div class="header-left">
+                    <div class="plan-icon"><i class="fab fa-python" style="color: #3776ab;"></i></div>
+                    <div>
+                        <div class="plan-title">Python Plan</div>
+                        <div class="plan-subtitle">Perfect for bot & script hosting</div>
+                    </div>
+                </div>
+                <div class="select-indicator"><i class="fas fa-check"></i></div>
+            </div>
+            <div class="plan-specs">
+                <div><i class="fas fa-check-circle"></i> 256MB RAM</div>
+                <div><i class="fas fa-check-circle"></i> 25% CPU</div>
+                <div><i class="fas fa-check-circle"></i> 1GB Storage</div>
+                <div><i class="fas fa-check-circle"></i> 5 Days Free Trial</div>
+            </div>
+            <button class="claim-btn" onclick="event.stopPropagation(); claimServer('pythonCard', 'python')">
+                <i class="fas fa-gift"></i> Claim Python Server
+            </button>
+        </div>
+    </div>
+
+    <div class="footer-text">
+        One free server per account. 5 days trial. Powered by free.HOSTING VIP.xyz
+    </div>
+</div>
+
+<div class="container" id="settingsView" style="display:none; margin-top:30px;">
+    <h2 style="font-weight:800; font-size:26px; margin: 0 0 5px 0; text-align: left;">Settings</h2>
+    <p style="color:var(--text-dim); font-size:13px; margin: 0 0 20px 0; text-align: left;">Manage your account settings and preferences</p>
+
+    <div id="msgAlert" class="animate__animated">
+        <i class="fas fa-check-circle"></i> <span id="msgAlertText"></span>
+    </div>
+
+    <div class="settings-box" style="display:flex; align-items:center; gap:15px;">
+        <div id="dispAvatarLetter" style="width:50px; height:50px; background:#6366f1; color:#fff; border-radius:12px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:20px;">U</div>
+        <div>
+            <div style="font-weight:700; font-size:16px;" id="dispTopName">Loading...</div>
+            <div style="font-size:12px; color:var(--text-dim);" id="dispTopEmail">Loading...</div>
+            <div class="active-badge">Active Account</div>
+        </div>
+    </div>
+
+    <div class="settings-box">
+        <div class="settings-title"><i class="fas fa-user" style="font-size:14px;"></i> Profile</div>
+        <span class="settings-desc">Your account information</span>
+        
+        <span class="input-lbl">Display Name</span>
+        <input type="text" id="setDispName" class="settings-input" value="">
+        
+        <span class="input-lbl">Email</span>
+        <input type="text" id="setDispEmail" class="settings-input" value="" readonly>
+        
+        <button class="btn btn-blue" style="width:auto; padding:10px 20px; font-size:13px;" onclick="triggerProfileUpdate()"><i class="fas fa-save"></i> Save Changes</button>
+    </div>
+
+    <div class="settings-box">
+        <div class="settings-title"><i class="fas fa-lock" style="font-size:14px;"></i> Change Password</div>
+        <span class="settings-desc">Set a new password for your account</span>
+        
+        <span class="input-lbl">Current Password</span>
+        <input type="password" class="settings-input" placeholder="Enter current password">
+        
+        <span class="input-lbl">New Password</span>
+        <input type="password" class="settings-input" placeholder="Min 6 characters">
+        
+        <span class="input-lbl">Confirm New Password</span>
+        <input type="password" class="settings-input" placeholder="Repeat new password">
+        
+        <button class="btn btn-blue" style="width:auto; padding:10px 20px; font-size:13px;" onclick="triggerPasswordUpdate()"><i class="fas fa-key"></i> Change Password</button>
+    </div>
+
+    <div class="settings-box" style="border: 1px solid rgba(255, 69, 58, 0.15); background: rgba(255, 69, 58, 0.02);">
+        <div class="settings-title" style="color:#ff453a;"><i class="fas fa-exclamation-triangle"></i> Danger Zone</div>
+        <span class="settings-desc">Irreversible actions</span>
+        
+        <button class="btn btn-black" style="color:#ff453a; font-weight:600; font-size:13px; width:100%; justify-content:center; border-color: rgba(255, 69, 58, 0.2);" onclick="deleteUserAccount()"><i class="fas fa-trash"></i> Delete Account</button>
+    </div>
+</div>
+
+<div class="bottom-nav">
+    <a href="/dashboard" class="nav-item"><i class="fas fa-th-large"></i> Overview</a>
+    <a class="nav-item active" id="navFree" onclick="switchTab('free')"><i class="fas fa-gift"></i> Free</a>
+    <a href="/premium" class="nav-item"><i class="fas fa-crown"></i> Plans</a>
+    <a class="nav-item" id="navSettings" onclick="switchTab('settings')"><i class="fas fa-user-circle"></i> Account</a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+let currentUsername = "user"; 
+
+async function fetchUserData() {
+    try {
+        const res = await fetch('/api/user_info');
+        if (!res.ok) throw new Error("Fallback required");
+        const data = await res.json();
+        if(data && data.email) {
+            currentUsername = data.name ? data.name.toLowerCase().replace(/[^a-z0-9]/g, '') : "user";
+            updateSidebarUI(data.name, data.email);
+            const isClaimed = data.free_server_claimed === true; 
+            updateClaimUI(isClaimed);
+        }
+    } catch (e) {
+        updateSidebarUI("User", "Loading...");
+        updateClaimUI(false);
+    }
+}
+
+async function claimServer(cardId, serverRuntime) {
+    const displayName = serverRuntime === 'python' ? 'Python' : 'Node.js';
+    const uniqueRandomSuffix = Math.floor(1000 + Math.random() * 9000); 
+    const uniqueProjectName = 'free-' + serverRuntime + '-' + currentUsername + '-' + uniqueRandomSuffix;
+
+    const confirm = await Swal.fire({
+        title: 'Claim Free Server?',
+        text: `Do you want to claim your free 5-day ${displayName} server?`,
+        icon: 'question',
+        showCancelButton: true,
+        background: '#0b0b0e',
+        color: '#fff',
+        confirmButtonColor: '#3b82f6',
+        cancelButtonColor: '#ff453a',
+        confirmButtonText: 'Yes, Claim It!'
+    });
+
+    if (confirm.isConfirmed) {
+        fetch('/add', { 
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                'name': uniqueProjectName,
+                'runtime': serverRuntime
+            })
+        })
+        .then(async r => {
+            const resData = await r.json();
+            if (resData.success) {
+                updateClaimUI(true);
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Claimed Successfully',
+                    text: 'Your free hosting server has been claimed.',
+                    background: '#0b0b0e',
+                    color: '#fff',
+                    confirmButtonColor: '#22c55e'
+                }).then(() => {
+                    window.location.href = '/dashboard'; 
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error', 
+                    title: 'Failed', 
+                    text: resData.error || 'Something went wrong.', 
+                    background: '#0b0b0e', 
+                    color: '#fff'
+                });
+            }
+        }).catch(err => {
+            Swal.fire({icon: 'error', title: 'Failed', text: 'Server response error', background: '#0b0b0e', color: '#fff'});
+        });
+    }
+}
+
+function updateSidebarUI(name, email) {
+    const firstLetter = name.charAt(0).toUpperCase();
+    document.getElementById('sidebarAvatarLetter').innerText = firstLetter;
+    document.getElementById('sidebarName').innerHTML = `${name} 👑`;
+    document.getElementById('sidebarUserEmail').innerText = email;
+    document.getElementById('dispAvatarLetter').innerText = firstLetter;
+    document.getElementById('dispTopName').innerText = name;
+    document.getElementById('dispTopEmail').innerText = email;
+    document.getElementById('setDispName').value = name;
+    document.getElementById('setDispEmail').value = email;
+}
+
+function updateClaimUI(isClaimed) {
+    if (isClaimed) {
+        document.getElementById('plansWrapper').style.display = 'none';
+        document.getElementById('giftBox').innerHTML = '📦'; 
+        document.getElementById('freeHostingDesc').innerHTML = 'The free hosting server has already been claimed.';
+        document.getElementById('freeHostingDesc').style.color = '#22c55e';
+        document.getElementById('freeHostingDesc').style.fontSize = '16px';
+        document.getElementById('freeHostingDesc').style.fontWeight = '700';
+    } else {
+        document.getElementById('giftBox').innerHTML = '🎁';
+        document.getElementById('plansWrapper').style.display = 'flex';
+        document.getElementById('freeHostingDesc').innerHTML = 'Get started with free bot hosting. No credit card required. 5 days free trial — powered by free.HOSTING VIP';
+        document.getElementById('freeHostingDesc').style.color = 'var(--text-muted)';
+        document.getElementById('freeHostingDesc').style.fontSize = '13px';
+        document.getElementById('freeHostingDesc').style.fontWeight = 'normal';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => { 
+    fetchUserData(); 
+});
+
+function switchTab(tab) {
+    if(tab === 'free') {
+        document.getElementById('freeView').style.display = 'block';
+        document.getElementById('settingsView').style.display = 'none';
+        document.getElementById('navFree').classList.add('active');
+        document.getElementById('navSettings').classList.remove('active');
+        document.getElementById('sideNavFree').classList.add('active');
+        document.getElementById('sideNavSettings').classList.remove('active');
+    } else if(tab === 'settings') {
+        document.getElementById('freeView').style.display = 'none';
+        document.getElementById('settingsView').style.display = 'block';
+        document.getElementById('navFree').classList.remove('active');
+        document.getElementById('navSettings').classList.add('active');
+        document.getElementById('sideNavFree').classList.remove('active');
+        document.getElementById('sideNavSettings').classList.add('active');
+    }
+}
+
+function showCustomAlert(message, isError = false) {
+    const alertBox = document.getElementById('msgAlert');
+    const alertText = document.getElementById('msgAlertText');
+    alertText.innerText = message;
+    alertBox.style.background = isError ? 'rgba(255, 69, 58, 0.15)' : 'rgba(16, 185, 129, 0.15)';
+    alertBox.style.borderColor = isError ? '#ff453a' : '#10b981';
+    alertBox.style.color = isError ? '#ff453a' : '#10b981';
+    alertBox.style.display = 'flex';
+    setTimeout(() => { alertBox.style.display = 'none'; }, 3000);
+}
+
+async function triggerProfileUpdate() {
+    const updatedName = document.getElementById('setDispName').value;
+    try {
+        const res = await fetch('/api/user/update_all', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ action: 'profile', name: updatedName })
+        });
+        if(res.ok) {
+            updateSidebarUI(updatedName, document.getElementById('setDispEmail').value);
+            showCustomAlert('Profile name updated successfully!');
+        } else {
+            showCustomAlert('Error updating profile', true);
+        }
+    } catch(e) { showCustomAlert('Server error', true); }
+}
+
+async function triggerPasswordUpdate() {
+    const inputs = document.querySelectorAll('#settingsView .settings-input[type="password"]');
+    if(inputs[1].value !== inputs[2].value) { showCustomAlert('Passwords do not match!', true); return; }
+    try {
+        const res = await fetch('/api/user/update_all', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ action: 'password', current_password: inputs[0].value, new_password: inputs[1].value })
+        });
+        if(res.ok) {
+            showCustomAlert('Password updated successfully!');
+            inputs[0].value = ''; inputs[1].value = ''; inputs[2].value = '';
+        } else { showCustomAlert('Error updating password', true); }
+    } catch(e) { showCustomAlert('Server error', true); }
+}
+
+function handleLogout(event) {
+    event.preventDefault();
+    localStorage.clear(); 
+    sessionStorage.clear();
+    window.location.href = '/logout';
+}
+
+async function deleteUserAccount() {
+    const confirm = await Swal.fire({
+        title: 'Delete Account?', 
+        text: 'This will permanently erase your account and all data.', 
+        icon: 'warning', 
+        showCancelButton: true, 
+        confirmButtonColor: '#ff3b30', 
+        background: '#1c1c1e', 
+        color: '#fff'
+    });
+    if (confirm.isConfirmed) {
+        const res = await fetch('/api/delete_account', { method: 'POST' });
+        if (res.ok) {
+            localStorage.clear();
+            sessionStorage.clear();
+            window.location.href = '/login';
+        }
+    }
+}
+
+function toggleSidebar(open) {
+    const sidebar = document.getElementById('sidebarMenu');
+    const overlay = document.getElementById('menuOverlay');
+    if (open) { sidebar.classList.add('open'); overlay.style.display = 'block'; }
+    else { sidebar.classList.remove('open'); overlay.style.display = 'none'; }
+}
+
+function selectCard(cardId) {
+    document.querySelectorAll('.plan-card').forEach(card => {
+        card.classList.remove('active');
+        const indicator = card.querySelector('.select-indicator');
+        if (indicator) indicator.innerHTML = '';
+    });
+    const selectedCard = document.getElementById(cardId);
+    if (selectedCard) {
+        selectedCard.classList.add('active');
+        const indicator = selectedCard.querySelector('.select-indicator');
+        if (indicator) indicator.innerHTML = '<i class="fas fa-check"></i>';
+    }
+}
+</script>
+</body>
+</html>

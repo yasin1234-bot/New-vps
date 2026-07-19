@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+    <title>HOSTING VIP | FREE COIN</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+        :root { 
+            --bg: #090d16; 
+            --card: #111827; 
+            --accent: #6366f1; 
+            --border: rgba(255, 255, 255, 0.08); 
+            --text-main: #ffffff;
+            --text-dim: #9ca3af;
+        }
+
+        body { 
+            margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text-main);
+            min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px;
+            overflow: hidden;
+        }
+
+        .container { 
+            background: var(--card); border-radius: 24px; border: 1px solid var(--border); padding: 45px 35px; 
+            text-align: center; max-width: 440px; width: 92%;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 50px rgba(99, 102, 241, 0.03);
+            opacity: 0;
+            transform: translateY(10px);
+            will-change: transform, opacity;
+            animation: loadCard 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+
+        h2 { font-weight: 800; font-size: 28px; margin: 0 0 10px 0; color: #fff; letter-spacing: -0.5px; }
+        .subtitle { color: var(--text-dim); font-size: 15px; margin: 0 0 35px 0; font-weight: 500; }
+
+        .btn { padding: 16px 20px; border-radius: 14px; border: none; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 12px; font-size: 15px; transition: all 0.25s ease; justify-content: center; text-decoration: none; width: 100%; box-sizing: border-box; }
+        .btn-blue { background: linear-gradient(135deg, #4f46e5, #9333ea); color: white; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); }
+        .btn-blue:hover { opacity: 0.95; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4); }
+        .btn-blue:active { transform: translateY(0); }
+        
+        .btn-gray { background: transparent; color: #fff; border: 1px solid var(--border); margin-top: 20px; }
+        .btn-gray:hover { background-color: rgba(255, 255, 255, 0.03); border-color: rgba(255, 255, 255, 0.2); }
+
+        /* Lifetime Timer Styles */
+        .lifetime-container {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px dashed var(--border);
+            border-radius: 14px;
+            padding: 15px;
+            margin: 10px 0;
+            display: none;
+        }
+        .lifetime-title {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #f59e0b;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        .timer-display {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 22px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        @keyframes loadCard {
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <i class="fas fa-coins" style="font-size: 55px; color: #f59e0b; margin-bottom: 25px; filter: drop-shadow(0 0 15px rgba(245, 158, 11, 0.2));"></i>
+    <h2>FREE COIN</h2>
+    <p class="subtitle" id="pageSubtitle">Claim 20 coins daily. Check back after midnight.</p>
+    
+    <button class="btn btn-blue" id="claimBtn" onclick="claimCoins()">
+        <i class="fas fa-hand-holding-usd"></i>
+        <span>Claim Daily Coins</span>
+    </button>
+
+    <div class="lifetime-container" id="timerBox">
+        <div class="lifetime-title"><i class="fas fa-history"></i> Lifetime</div>
+        <div class="timer-display" id="countdownTimer">00h : 00m : 00s</div>
+    </div>
+    
+    <a href="/dashboard" class="btn btn-gray">
+        <i class="fas fa-arrow-left"></i>
+        Back to Dashboard
+    </a>
+</div>
+
+<script>
+    let timerInterval = null;
+
+    // পেজ লোড হওয়ার সাথে সাথে চেক করবে ইউজার আজ অলরেডি ক্লেইম করেছে কিনা
+    window.addEventListener('DOMContentLoaded', () => {
+        checkClaimStatus();
+    });
+
+    function getLocalDateString() {
+        const localDate = new Date();
+        const year = localDate.getFullYear();
+        const month = String(localDate.getMonth() + 1).padStart(2, '0');
+        const day = String(localDate.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    async function checkClaimStatus() {
+        try {
+            // পাইথনের বর্তমান ইউজার ইনফো এন্ডপয়েন্ট থেকে ডাটা রিড করা হচ্ছে
+            const response = await fetch('/api/user_info');
+            if (response.ok) {
+                // পাইথন ফাইলের ডাটাবেজ/json ফাইল সরাসরি চেক করার জন্য লোকালস্টোরেজ ইন্টিগ্রেশন
+                const todayStr = getLocalDateString();
+                const claimKey = `claimed_${todayStr}`;
+                
+                if (localStorage.getItem(claimKey) === 'true') {
+                    showTimer();
+                } else {
+                    showButton();
+                }
+            }
+        } catch (e) {
+            showButton();
+        }
+    }
+
+    function showTimer() {
+        document.getElementById('claimBtn').style.display = 'none';
+        document.getElementById('timerBox').style.display = 'block';
+        document.getElementById('pageSubtitle').innerText = "You have already claimed today's reward.";
+        
+        if (timerInterval) clearInterval(timerInterval);
+        
+        // লাইভ কাউন্টডাউন টাইমার রান করা (রাত ১২:০০ AM পর্যন্ত)
+        timerInterval = setInterval(() => {
+            const now = new Date();
+            const midnight = new Date();
+            midnight.setHours(24, 0, 0, 0); // আজকের রাত ১২:০০ এএম
+
+            const diff = midnight - now;
+
+            if (diff <= 0) {
+                // রাত ১২:০০ বেজে গেলে টাইমার স্টপ হবে এবং বাটন ফেরত আসবে
+                clearInterval(timerInterval);
+                const todayStr = getLocalDateString();
+                localStorage.removeItem(`claimed_${todayStr}`);
+                showButton();
+            } else {
+                const hours = String(Math.floor((diff / (1000 * 60 * 60)) % 24)).padStart(2, '0');
+                const minutes = String(Math.floor((diff / (1000 * 60)) % 60)).padStart(2, '0');
+                const seconds = String(Math.floor((diff / 1000) % 60)).padStart(2, '0');
+                
+                document.getElementById('countdownTimer').innerText = `${hours}h : ${minutes}m : ${seconds}s`;
+            }
+        }, 1000);
+    }
+
+    function showButton() {
+        if (timerInterval) clearInterval(timerInterval);
+        document.getElementById('claimBtn').style.display = 'flex';
+        document.getElementById('timerBox').style.display = 'none';
+        document.getElementById('pageSubtitle').innerText = "Claim 20 coins daily. Check back after midnight.";
+    }
+
+    async function claimCoins() {
+        Swal.fire({
+            title: 'Claiming Coins...',
+            allowOutsideClick: false,
+            background: '#111827',
+            color: '#fff',
+            didOpen: () => {
+                Swal.showLoading()
+            }
+        });
+
+        const userLocalDateStr = getLocalDateString();
+
+        try {
+            // পাইথন ফাইলের সাথে থাকা আসল API রিকোয়েস্ট (কোনো পরিবর্তন ছাড়া)
+            const response = await fetch('/api/claim_coins', { 
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ local_date: userLocalDateStr })
+            });
+            const result = await response.json();
+            Swal.close();
+
+            if (result.status === 'success' || (result.msg && result.msg.includes('already claimed'))) {
+                // সফল হলে বা অলরেডি করা থাকলে বাটন হাইড করে লাইফটাইম টাইমার অন হবে
+                localStorage.setItem(`claimed_${userLocalDateStr}`, 'true');
+                showTimer();
+
+                Swal.fire({ 
+                    icon: result.status === 'success' ? 'success' : 'error',
+                    title: result.status === 'success' ? 'Success!' : 'Already Claimed',
+                    text: result.msg || '20 Coins processed.', 
+                    background: '#111827', 
+                    color: '#fff',
+                    confirmButtonColor: '#6366f1'
+                });
+            } else {
+                Swal.fire({ 
+                    icon: 'error', 
+                    title: 'Claim Failed', 
+                    text: result.msg || 'Something went wrong.', 
+                    background: '#111827', 
+                    color: '#fff',
+                    confirmButtonColor: '#6366f1'
+                });
+            }
+        } catch (error) {
+            Swal.close();
+            Swal.fire({ 
+                icon: 'error', 
+                title: 'System Error', 
+                text: 'Network error or backend server not responding.', 
+                background: '#111827', 
+                color: '#fff',
+                confirmButtonColor: '#6366f1'
+            });
+        }
+    }
+</script>
+
+</body>
+</html>

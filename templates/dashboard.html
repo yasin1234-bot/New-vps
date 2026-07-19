@@ -1,0 +1,1137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+  <title>HOSTING VIP| Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/theme/dracula.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/mode/python/python.min.js"></script>
+  
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+    :root { 
+      --bg: #050505; 
+      --card: rgba(18, 18, 22, 0.7); 
+      --accent: #6366f1; 
+      --border: rgba(255, 255, 255, 0.08); 
+      --text-main: #ffffff;
+      --text-dim: #a1a1aa;
+      --glass: blur(12px);
+      --terminal-bg: #0d0d0f;
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    body { 
+        margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text-main);
+        min-height: 100vh; overflow-x: hidden;
+        padding-bottom: 70px;
+    }
+
+    body.menu-open { overflow: hidden; }
+
+    .topbar { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; background: rgba(10, 10, 12, 0.8); backdrop-filter: var(--glass); position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid var(--border); }
+    .logo-box { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 18px; }
+    .logo-icon { background: linear-gradient(135deg, #3b82f6, #6366f1); width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; }
+
+    .coin-pill { background: rgba(0, 255, 127, 0.1); border: 1px solid #00ff7f; color: #00ff7f; padding: 6px 14px; border-radius: 20px; font-weight: 700; font-size: 14px; font-family: 'JetBrains Mono'; display: flex; align-items: center; gap: 6px; }
+    .nav-toggle { background: #1c1c1e; width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#fff; border:none; cursor:pointer; }
+    .container { padding: 20px 15px; max-width: 800px; margin: auto; }
+    .stat-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+    .stat-card { background: var(--card); border-radius: 18px; border: 1px solid var(--border); padding: 20px; text-align: center; }
+    .stat-val { font-size: 30px; font-weight: 800; color: #6366f1; font-family: 'Plus Jakarta Sans'; }
+    .stat-label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; margin-top: 5px; font-weight: 600; }
+    .stat-card.premium .stat-val { color: #f59e0b; }
+    .stat-card.free .stat-val { color: #10b981; }
+
+    .main-hero { background: var(--card); border-radius: 24px; border: 1px solid var(--border); padding: 40px 30px; text-align: center; margin-bottom: 20px; }
+    .main-hero img { width: 100px; margin-bottom: 20px; }
+    .hero-title { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 8px; }
+    .hero-p { font-size: 13px; color: var(--text-dim); line-height: 1.6; margin-bottom: 30px; }
+
+    .btn { padding: 14px 20px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 14px; transition: 0.2s; justify-content: center; text-decoration: none; }
+    .btn:active { transform: scale(0.98); }
+    .btn-blue { background: #6366f1; color: white; }
+    .btn-gray { background: #1c1c1e; color: #fff; border: 1px solid var(--border); }
+    .btn-black { background: #121214; color: #fff; border: 1px solid #2a2a2e; }
+    .btn-green { background: #10b981; color: #fff; }
+    .btn-green:hover { background: #059669; }
+
+    .file-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; border-bottom: 1px solid var(--border); cursor: pointer; }
+    .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #101012; border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 10px; z-index: 1000; }
+    .nav-item { text-align: center; color: var(--text-dim); text-decoration: none; font-size: 11px; font-weight: 600; flex: 1; border:none; background:none; cursor:pointer;}
+    .nav-item i { font-size: 18px; margin-bottom: 4px; display: block; }
+    .nav-item.active { color: #6366f1; }
+
+    .side-panel { position: fixed; top: 0; right: 0; height: 100dvh; width: 290px; background: #09090b; border-left: 1px solid #1f1f23; z-index: 5000; transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); padding: 24px 20px; display: flex; flex-direction: column; overflow: hidden; }
+    .side-panel.open { transform: translateX(0); }
+    .side-menu-content { flex: 1; overflow-y: auto; overscroll-behavior: contain; }
+    .side-menu-item { display: flex; align-items: center; gap: 12px; padding: 12px 14px; color: #e4e4e7; text-decoration: none; border-radius: 12px; transition: 0.2s; font-size: 14px; font-weight: 600; margin-bottom: 4px; background:none; border:none; width:100%; text-align:left; cursor:pointer;}
+    .side-menu-item i { width: 20px; font-size: 16px; color: #a1a1aa; }
+    .side-menu-item:hover, .side-menu-item.active { background: #18181b; color: #fff; }
+    .side-menu-item.active i { color: #6366f1; }
+
+    .user-pill { display: flex; flex-direction: column; align-items: stretch; gap: 12px; padding: 12px; background: #121214; border-radius: 14px; border: 1px solid #1f1f23; margin-top: auto; flex-shrink: 0; }
+    .user-info-block { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+
+    #editor { display:none; position:fixed; inset:0; background:var(--bg); z-index:6000; padding:15px; }
+    .CodeMirror { height: 85vh; border-radius: 12px; font-size: 14px; }
+
+    .settings-box { background: #0c0c0e; border-radius: 16px; border: 1px solid #1f1f23; padding: 20px; margin-bottom: 20px; }
+    .settings-title { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 16px; margin-bottom: 4px; color: #fff; }
+    .settings-desc { font-size: 11px; color: var(--text-dim); display: block; margin-bottom: 15px; }
+    .input-lbl { font-size: 10px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; margin-bottom: 6px; display: block; letter-spacing: 0.5px; }
+    .settings-input { width: 100%; background: #131316; border: 1px solid var(--border); color: #fff; padding: 12px 14px; border-radius: 10px; font-size: 13px; outline: none; margin-bottom: 15px; }
+    .settings-input:focus { border-color: #6366f1; }
+    .settings-input[readonly] { background: #0c0c0e; color: #71717a; border-color: rgba(255, 255, 255, 0.03); cursor: not-allowed; }
+    .active-badge { display: inline-flex; align-items: center; gap: 4px; background: rgba(16, 185, 129, 0.15); border: 1px solid #10b981; color: #10b981; padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; margin-top: 4px; text-transform: uppercase; }
+    #msgAlert { display: none; background: rgba(16, 185, 129, 0.15); border: 1px solid #10b981; color: #10b981; padding: 12px 15px; border-radius: 12px; font-size: 13px; font-weight: 600; margin-bottom: 20px; align-items: center; gap: 10px; }
+
+    .panel-access-card { background: #090e14; border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 20px; padding: 22px; margin-bottom: 25px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
+    .panel-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
+    
+    .panel-icon-box { background: #131921; width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; border: 1px solid rgba(255,255,255,0.05); }
+    .panel-icon-box.python { color: #f59e0b; background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.2); }
+
+    .panel-badge { font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; margin-left: 8px; }
+    .panel-badge.free { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .panel-badge.premium { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); }
+    
+    .specs-grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 22px; background: rgba(0, 0, 0, 0.15); padding: 16px; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.03); }
+    .spec-box-item { display: flex; flex-direction: column; gap: 4px; }
+    .spec-box-item .label-text { font-size: 11px; font-weight: 700; color: #71717a; text-transform: uppercase; letter-spacing: 0.5px; }
+    .spec-box-item .value-text { font-size: 14px; font-family: 'JetBrains Mono', monospace; color: #ffffff; font-weight: 600; }
+
+    .panel-btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
+
+    .srv-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+    .quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 25px; }
+    
+    .quick-card { 
+      background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; text-align: left; cursor: pointer; 
+      transition: transform 0.2s, background-color 0.3s, border-color 0.3s, box-shadow 0.3s;
+    }
+    .quick-card:active { transform: scale(0.96); }
+    
+    .quick-card.free-plan { background: rgba(16, 185, 129, 0.08) !important; border-color: rgba(16, 185, 129, 0.3) !important; box-shadow: 0 4px 20px rgba(16, 185, 129, 0.1); }
+    .quick-card.free-plan:hover { background: rgba(16, 185, 129, 0.15) !important; border-color: rgba(16, 185, 129, 0.5) !important; }
+    .quick-card.premium-plan { background: rgba(245, 158, 11, 0.08) !important; border-color: rgba(245, 158, 11, 0.3) !important; box-shadow: 0 4px 20px rgba(245, 158, 11, 0.1); }
+    .quick-card.premium-plan:hover { background: rgba(245, 158, 11, 0.15) !important; border-color: rgba(245, 158, 11, 0.5) !important; }
+    .quick-card.buy-coins { background: rgba(0, 255, 127, 0.08) !important; border-color: rgba(0, 255, 127, 0.3) !important; box-shadow: 0 4px 20px rgba(0, 255, 127, 0.1); }
+    .quick-card.buy-coins:hover { background: rgba(0, 255, 127, 0.15) !important; border-color: rgba(0, 255, 127, 0.5) !important; }
+    .quick-card.settings-card { background: rgba(99, 102, 241, 0.08) !important; border-color: rgba(99, 102, 241, 0.3) !important; box-shadow: 0 4px 20px rgba(99, 102, 241, 0.1); }
+    .quick-card.settings-card:hover { background: rgba(99, 102, 241, 0.15) !important; border-color: rgba(99, 102, 241, 0.5) !important; }
+
+    .quick-card i { font-size: 20px; margin-bottom: 12px; display: block; }
+
+    .clock-container-sync { text-align: center; margin-bottom: 20px; background: var(--card); border: 1px solid var(--border); padding: 15px; border-radius: 18px; }
+    .clock-time-sync { font-size: 26px; font-weight: 800; color: #6366f1; font-family: 'JetBrains Mono'; letter-spacing: 1px; }
+    .clock-date-sync { font-size: 14px; color: var(--text-dim); margin-top: 4px; font-weight: 600; }
+    .music-control-pill { background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.3); color: #6366f1; padding: 6px 14px; border-radius: 20px; font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 6px; cursor: pointer; transition: 0.2s; }
+    .music-control-pill:hover { background: rgba(99, 102, 241, 0.2); }
+
+    .header-title { text-align: center; margin-top: 10px; }
+    .header-title .badge { background: rgba(245, 158, 11, 0.1); color: #f59e0b; font-size: 11px; padding: 4px 10px; border-radius: 20px; border: 1px solid rgba(245, 158, 11, 0.2); font-weight: 600; display: inline-block; margin-bottom: 8px;}
+    .header-title h2 { margin: 0 0 5px 0; font-size: 22px; font-weight: 700; }
+    .header-title p { margin: 0 0 20px 0; font-size: 13px; color: var(--text-dim); }
+
+    .tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; background: #0b111e; padding: 4px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 20px; }
+    .tab-btn { background: transparent; border: none; color: #9ca3af; padding: 8px 0; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 600; text-align: center; }
+    .tab-btn.active { background: #f59e0b; color: #000; }
+    
+    .plan-content { display: none; }
+    .plan-content.active { display: block; }
+    
+    .plan-card { background: #0b111e; border: 1px solid var(--border); border-radius: 16px; padding: 18px; margin-bottom: 15px; position: relative; }
+    .plan-header { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; }
+    .plan-icon { width: 40px; height: 40px; background: rgba(255,255,255,0.03); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+    .plan-title { font-weight: 700; font-size: 16px; }
+    .plan-subtitle { font-size: 11px; color: var(--text-dim); }
+    
+    .plan-specs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 15px; font-size: 12px; color: #d1d5db; margin-bottom: 20px; padding: 0 2px; }
+    .plan-specs div { display: flex; align-items: center; gap: 8px; }
+    .plan-specs i { font-size: 14px; color: #10b981; width: 14px; }
+    
+    .price-box { display: flex; gap: 10px; margin-bottom: 15px; }
+    .price-btn { flex: 1; padding: 10px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.05); background: rgba(255,255,255,0.02); text-align: center; cursor: pointer; transition: 0.2s; }
+    .price-btn .p-title { font-size: 10px; color: var(--text-dim); font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 4px; margin-bottom: 2px; transition: 0.2s; }
+    .price-btn .p-amount { font-size: 18px; font-weight: 800; color: #fff; transition: 0.2s; }
+    .price-btn .p-period { font-size: 9px; color: var(--text-dim); }
+    
+    .price-btn.selected { border-color: #f59e0b; background: rgba(245, 158, 11, 0.05); }
+    .price-btn.selected .p-title { color: #f59e0b; }
+    .price-btn.selected .p-amount { color: #f59e0b; }
+    
+    .buy-btn { width: 100%; padding: 12px; border-radius: 10px; border: none; background: linear-gradient(135deg, #f59e0b, #d97706); color: #000; font-weight: 800; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .card-footer-tags { display: flex; justify-content: center; gap: 15px; font-size: 10px; color: #10b981; margin-top: 10px; font-weight: 600; }
+    .card-footer-tags span { display: flex; align-items: center; gap: 4px; }
+
+    @keyframes continuousRotate {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    @keyframes intervalRotateLong {
+      0% { transform: rotate(0deg); }
+      10% { transform: rotate(360deg); }
+      20% { transform: rotate(720deg); }
+      30% { transform: rotate(1080deg); }
+      35%, 100% { transform: rotate(1080deg); }
+    }
+
+    .logo-running-spin {
+      animation: continuousRotate 4s linear infinite !important;
+    }
+    .logo-interval-spin {
+      animation: intervalRotateLong 8s cubic-bezier(0.4, 0, 0.2, 1) infinite !important;
+    }
+
+    #manageView { display: none; background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 20px; margin-bottom: 20px; }
+    .file-actions-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+  </style>
+</head>
+<body>
+
+<div style="display:none;">
+  <audio id="bgMusic">
+      <source src="" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="topbar">
+    <div class="logo-box">
+        <div class="logo-icon"><i class="fas fa-cloud"></i></div>
+        <span>HOSTING VIP</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:10px;">
+        <div id="muteBtn" class="music-control-pill" onclick="toggleMute()" title="Toggle Mute"><i class="fas fa-volume-up"></i> <span>🔊</span></div>
+        <div class="coin-pill"><i class="fas fa-dollar-sign"></i> <span id="coinDisplay">0</span></div>
+        <button class="nav-toggle" onclick="toggleSidePanel()"><i class="fas fa-bars"></i></button>
+    </div>
+</div>
+
+<div class="container" id="homeView">
+    <div class="clock-container-sync">
+      <div class="clock-time-sync" id="liveClock">00:00:00 --</div>
+      <div class="clock-date-sync" id="liveDate">00-00-0000</div>
+    </div>
+
+    <h2 style="font-weight:800; font-size:26px; margin: 0 0 5px 0;">Welcome back, <span id="welcomeUserName">User</span> 👋</h2>
+    <p style="color:var(--text-dim); font-size:13px; margin: 0 0 20px 0;">Here's what's happening with your services today.</p>
+
+    <div class="stat-row">
+        <div class="stat-card">
+            <div class="stat-val" id="statTotal">0</div>
+            <div class="stat-label">TOTAL</div>
+        </div>
+        <div class="stat-card free">
+            <div class="stat-val" id="statFree">0</div>
+            <div class="stat-label">FREE</div>
+        </div>
+        <div class="stat-card premium">
+            <div class="stat-val" id="statPremium">0</div>
+            <div class="stat-label">PREMIUM</div>
+        </div>
+    </div>
+
+    <div class="main-hero animate__animated animate__fadeInUp" id="noServerHero">
+        <img src="https://cdn-icons-png.flaticon.com/512/3211/3211119.png" alt="Rocket">
+        <div class="hero-title">Start Your Journey</div>
+        <p class="hero-p">You don't have any servers yet. Get a free server or upgrade to premium hosting.</p>
+        <a href="/free/" class="btn btn-blue" style="width:100%; margin-bottom:12px"><i class="fas fa-gift"></i> Claim Free Server</a>
+        <button class="btn btn-gray" style="width:100%" onclick="switchTab('premium')"><i class="fas fa-crown"></i> View Premium Plans</button>
+    </div>
+
+    <div id="activeServerPanel" style="display: none;">
+        <div class="panel-access-card animate__animated animate__fadeInUp" id="dynamicPanelCard">
+            <div class="panel-header">
+                <div class="panel-icon-box python" id="panelTypeIcon">
+                    <i class="fab fa-python logo-interval-spin"></i>
+                </div>
+                <div>
+                    <div style="font-weight: 800; font-size: 16px; display: flex; align-items: center;" id="panelTitleText">
+                        Loading...
+                    </div>
+                    <div style="font-size: 11px; color: var(--text-dim); margin-top: 2px;" id="panelSubText">Cloud Server</div>
+                </div>
+            </div>
+
+            <div class="specs-grid-layout">
+                <div class="spec-box-item">
+                    <span class="label-text">RAM</span>
+                    <span class="value-text" id="displayRamVal" style="color: #6366f1;">Loading...</span>
+                </div>
+                <div class="spec-box-item">
+                    <span class="label-text">STORAGE</span>
+                    <span class="value-text" id="displayStorageVal" style="color: #10b981;">Loading...</span>
+                </div>
+                <div class="spec-box-item">
+                    <span class="label-text">CPU</span>
+                    <span class="value-text" id="displayCpuVal" style="color: #3b82f6;">Loading...</span>
+                </div>
+                <div class="spec-box-item" style="grid-column: span 2; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; background: rgba(0, 0, 0, 0.2); padding: 10px; border-radius: 8px;">
+                    <span class="label-text" style="color:#71717a; font-size: 10px; font-weight:800;">EXPIRE DATE & LIFETIME</span>
+                    <div id="countdownDisplay" style="font-size: 15px; font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #f59e0b;">Loading countdown...</div>
+                </div>
+            </div>
+
+            <div class="panel-btn-grid" id="panelActionGrid">
+                <button class="btn btn-green" id="btnOpenPanel"><i class="fas fa-external-link-alt"></i> Open Panel</button>
+                <button class="btn btn-gray" id="btnManageServer"><i class="fas fa-cog"></i> Manage Server</button>
+            </div>
+        </div>
+
+        <h3 style="font-weight:800; font-size:14px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-server" style="font-size: 12px;"></i> Active Servers
+        </h3>
+        <div id="srvList"></div>
+
+        <div class="quick-grid" style="margin-top: 20px;">
+            <div class="quick-card free-plan" onclick="location.href='/free/'">
+                <i class="fas fa-gift" style="color: #10b981;"></i>
+                <div style="font-weight: 700; font-size: 14px;">Free Hosting Plan</div>
+                <div style="font-size: 11px; color: var(--text-dim); margin-top: 2px;">Claim free server</div>
+            </div>
+            <div class="quick-card premium-plan" onclick="switchTab('premium')">
+                <i class="fas fa-crown" style="color: #f59e0b;"></i>
+                <div style="font-weight: 700; font-size: 14px;">Premium</div>
+                <div style="font-size: 11px; color: var(--text-dim); margin-top: 2px;">Upgrade plan</div>
+            </div>
+            <div class="quick-card buy-coins" onclick="location.href='/coin-purchase'">
+                <i class="fas fa-coins" style="color: #00ff7f;"></i>
+                <div style="font-weight: 700; font-size: 14px;">Buy Coins</div>
+                <div style="font-size: 11px; color: var(--text-dim); margin-top: 2px;">Top up balance</div>
+            </div>
+            <div class="quick-card settings-card" onclick="switchTab('settings')">
+                <i class="fas fa-cog" style="color: #6366f1;"></i>
+                <div style="font-weight: 700; font-size: 14px;">Settings</div>
+                <div style="font-size: 11px; color: var(--text-dim); margin-top: 2px;">Account & password</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container" id="manageView" style="display:none">
+    <div class="file-actions-header">
+        <h2 style="font-weight:800; font-size:20px; margin:0;" id="manageServerTitle">Manage Server Files</h2>
+        <button class="btn btn-gray" onclick="goHome()" style="padding: 8px 14px; font-size: 12px;"><i class="fas fa-arrow-left"></i> Back</button>
+    </div>
+    <div style="display:flex; gap:10px; margin-bottom:20px;">
+        <button class="btn btn-blue" onclick="createNewFile()" style="flex:1; padding: 10px;"><i class="fas fa-plus"></i> New File</button>
+        <label class="btn btn-gray" style="flex:1; padding: 10px; margin:0; display:flex; align-items:center; justify-content:center;">
+            <i class="fas fa-upload"></i> Upload <input type="file" style="display:none" onchange="uploadFile(this)">
+        </label>
+        <button class="btn btn-black" onclick="deleteServer()" style="color:#ff453a; border-color:rgba(255,69,58,0.2); padding:10px;"><i class="fas fa-trash"></i> Delete</button>
+    </div>
+    <div id="fileList" style="background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius:12px; overflow:hidden;"></div>
+</div>
+
+<div class="container" id="premiumPlanView" style="display:none">
+    <div class="header-title">
+        <div class="badge"><i class="fas fa-crown"></i> Premium Hosting</div>
+        <h2>Upgrade Your Experience</h2>
+        <p>More resources, priority support, and advanced capabilities.</p>
+    </div>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="showTab(event, 'p256')">256MB</button>
+        <button class="tab-btn" onclick="showTab(event, 'p512')">512MB</button>
+        <button class="tab-btn" onclick="showTab(event, 'p1g')">1GB</button>
+        <button class="tab-btn" onclick="showTab(event, 'p2g')">2GB</button>
+    </div>
+
+    <div id="p256" class="plan-content active animate__animated animate__fadeIn">
+        <div class="plan-card" data-plan="Python" data-ram="256MB" data-cpu="25%" data-storage="2GB">
+            <div class="plan-header">
+                <div class="plan-icon"><i class="fab fa-python" style="color:#f59e0b;"></i></div>
+                <div><div class="plan-title">Python Plan</div><div class="plan-subtitle">Discord BOTS</div></div>
+            </div>
+            <div class="plan-specs">
+                <div><i class="fas fa-server"></i> 256MB RAM</div><div><i class="fas fa-microchip"></i> 25% CPU</div>
+                <div><i class="fas fa-hdd"></i> 2GB Storage</div><div><i class="fas fa-headset"></i> Basic Support</div>
+            </div>
+            <div class="price-box">
+                <div class="price-btn" onclick="selectPeriod(this, 'yearly', 330)"><div class="p-title"><i class="fas fa-bolt"></i> Yearly</div><div class="p-amount">330</div><div class="p-period">Coins /year</div></div>
+                <div class="price-btn selected" onclick="selectPeriod(this, 'monthly', 55)"><div class="p-title"><i class="fas fa-bolt"></i> Monthly</div><div class="p-amount">55</div><div class="p-period">Coins /month</div></div>
+            </div>
+            <button class="buy-btn" onclick="processPurchase(this)"><i class="fas fa-crown"></i> Buy Now</button>
+            <div class="card-footer-tags"><span><i class="fas fa-check-circle"></i> INSTANT SETUP</span><span><i class="fas fa-check-circle"></i> 99.9% UPTIME</span></div>
+        </div>
+    </div>
+
+    <div id="p512" class="plan-content animate__animated animate__fadeIn">
+        <div class="plan-card" data-plan="Python" data-ram="512MB" data-cpu="50%" data-storage="4GB">
+            <div class="plan-header">
+                <div class="plan-icon"><i class="fab fa-python" style="color:#f59e0b;"></i></div>
+                <div><div class="plan-title">Python Plan</div><div class="plan-subtitle">Discord BOTS</div></div>
+            </div>
+            <div class="plan-specs">
+                <div><i class="fas fa-server"></i> 512MB RAM</div><div><i class="fas fa-microchip"></i> 50% CPU</div>
+                <div><i class="fas fa-hdd"></i> 4GB Storage</div><div><i class="fas fa-headset"></i> Basic Support</div>
+            </div>
+            <div class="price-box">
+                <div class="price-btn" onclick="selectPeriod(this, 'yearly', 605)"><div class="p-title"><i class="fas fa-bolt"></i> Yearly</div><div class="p-amount">605</div><div class="p-period">Coins /year</div></div>
+                <div class="price-btn selected" onclick="selectPeriod(this, 'monthly', 77)"><div class="p-title"><i class="fas fa-bolt"></i> Monthly</div><div class="p-amount">77</div><div class="p-period">Coins /month</div></div>
+            </div>
+            <button class="buy-btn" onclick="processPurchase(this)"><i class="fas fa-crown"></i> Buy Now</button>
+            <div class="card-footer-tags"><span><i class="fas fa-check-circle"></i> INSTANT SETUP</span><span><i class="fas fa-check-circle"></i> 99.9% UPTIME</span></div>
+        </div>
+    </div>
+
+    <div id="p1g" class="plan-content animate__animated animate__fadeIn">
+        <div class="plan-card" data-plan="Python" data-ram="1GB" data-cpu="100%" data-storage="8GB">
+            <div class="plan-header">
+                <div class="plan-icon"><i class="fab fa-python" style="color:#f59e0b;"></i></div>
+                <div><div class="plan-title">Python Plan</div><div class="plan-subtitle">Discord BOTS</div></div>
+            </div>
+            <div class="plan-specs">
+                <div><i class="fas fa-server"></i> 1GB RAM</div><div><i class="fas fa-microchip"></i> 100% CPU</div>
+                <div><i class="fas fa-hdd"></i> 8GB Storage</div><div><i class="fas fa-headset"></i> Basic Support</div>
+            </div>
+            <div class="price-box">
+                <div class="price-btn" onclick="selectPeriod(this, 'yearly', 1100)"><div class="p-title"><i class="fas fa-bolt"></i> Yearly</div><div class="p-amount">1100</div><div class="p-period">Coins /year</div></div>
+                <div class="price-btn selected" onclick="selectPeriod(this, 'monthly', 110)"><div class="p-title"><i class="fas fa-bolt"></i> Monthly</div><div class="p-amount">110</div><div class="p-period">Coins /month</div></div>
+            </div>
+            <button class="buy-btn" onclick="processPurchase(this)"><i class="fas fa-crown"></i> Buy Now</button>
+            <div class="card-footer-tags"><span><i class="fas fa-check-circle"></i> INSTANT SETUP</span><span><i class="fas fa-check-circle"></i> 99.9% UPTIME</span></div>
+        </div>
+    </div>
+
+    <div id="p2g" class="plan-content animate__animated animate__fadeIn">
+        <div class="plan-card" data-plan="Python" data-ram="2GB" data-cpu="200%" data-storage="12GB">
+            <div class="plan-header">
+                <div class="plan-icon"><i class="fab fa-python" style="color:#f59e0b;"></i></div>
+                <div><div class="plan-title">Python Plan</div><div class="plan-subtitle">Discord BOTS</div></div>
+            </div>
+            <div class="plan-specs">
+                <div><i class="fas fa-server"></i> 2GB RAM</div><div><i class="fas fa-microchip"></i> 200% CPU</div>
+                <div><i class="fas fa-hdd"></i> 12GB Storage</div><div><i class="fas fa-headset"></i> Basic Support</div>
+            </div>
+            <div class="price-box">
+                <div class="price-btn" onclick="selectPeriod(this, 'yearly', 2200)"><div class="p-title"><i class="fas fa-bolt"></i> Yearly</div><div class="p-amount">2200</div><div class="p-period">Coins /year</div></div>
+                <div class="price-btn selected" onclick="selectPeriod(this, 'monthly', 220)"><div class="p-title"><i class="fas fa-bolt"></i> Monthly</div><div class="p-amount">220</div><div class="p-period">Coins /month</div></div>
+            </div>
+            <button class="buy-btn" onclick="processPurchase(this)"><i class="fas fa-crown"></i> Buy Now</button>
+            <div class="card-footer-tags"><span><i class="fas fa-check-circle"></i> INSTANT SETUP</span><span><i class="fas fa-check-circle"></i> 99.9% UPTIME</span></div>
+        </div>
+    </div>
+</div>
+
+<div class="container" id="settingsView" style="display:none">
+    <h2 style="font-weight:800; font-size:26px; margin: 0 0 5px 0;">Settings</h2>
+    <p style="color:var(--text-dim); font-size:13px; margin: 0 0 20px 0;">Manage your account settings and preferences</p>
+
+    <div id="msgAlert" class="animate__animated">
+        <i class="fas fa-check-circle"></i> <span id="msgAlertText"></span>
+    </div>
+
+    <div class="settings-box" style="display:flex; align-items:center; gap:15px;">
+        <div id="dispAvatarLetter" style="width:50px; height:50px; background:#6366f1; color:#fff; border-radius:12px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:20px;">U</div>
+        <div>
+            <div style="font-weight:700; font-size:16px;" id="dispTopName">Loading...</div>
+            <div style="font-size:12px; color:var(--text-dim);" id="dispTopEmail">Loading...</div>
+            <div class="active-badge">Active Account</div>
+        </div>
+    </div>
+
+    <div class="settings-box">
+        <div class="settings-title"><i class="fas fa-user" style="font-size:14px;"></i> Profile</div>
+        <span class="settings-desc">Your account information</span>
+        
+        <span class="input-lbl">Display Name</span>
+        <input type="text" id="setDispName" class="settings-input" value="">
+        
+        <span class="input-lbl">Email</span>
+        <input type="text" id="setDispEmail" class="settings-input" value="" readonly>
+        
+        <button class="btn btn-blue" style="width:auto; padding:10px 20px; font-size:13px;" onclick="triggerProfileUpdate()"><i class="fas fa-save"></i> Save Changes</button>
+    </div>
+
+    <div class="settings-box">
+        <div class="settings-title"><i class="fas fa-lock" style="font-size:14px;"></i> Change Password</div>
+        <span class="settings-desc">Set a new password for your account</span>
+        
+        <span class="input-lbl">Current Password</span>
+        <input type="password" class="settings-input" placeholder="Enter current password">
+        
+        <span class="input-lbl">New Password</span>
+        <input type="password" class="settings-input" placeholder="Min 6 characters">
+        
+        <span class="input-lbl">Confirm New Password</span>
+        <input type="password" class="settings-input" placeholder="Repeat new password">
+        
+        <button class="btn btn-blue" style="width:auto; padding:10px 20px; font-size:13px;" onclick="triggerPasswordUpdate()"><i class="fas fa-key"></i> Change Password</button>
+    </div>
+
+    <div class="settings-box" style="border: 1px solid rgba(255, 69, 58, 0.15); background: rgba(255, 69, 58, 0.02);">
+        <div class="settings-title" style="color:#ff453a;"><i class="fas fa-exclamation-triangle"></i> Danger Zone</div>
+        <span class="settings-desc">Irreversible actions</span>
+        
+        <button class="btn btn-black" style="color:#ff453a; font-weight:600; font-size:13px; width:100%; justify-content:center; border-color: rgba(255, 69, 58, 0.2);" onclick="deleteUserAccount()"><i class="fas fa-trash"></i> Delete Account</button>
+    </div>
+</div>
+
+<div class="bottom-nav">
+    <button class="nav-item active" id="navHome" onclick="switchTab('home')"><i class="fas fa-th-large"></i> Overview</button>
+    <a href="/free/" class="nav-item"><i class="fas fa-gift"></i> Free</a>
+    <button class="nav-item" id="navPremium" onclick="switchTab('premium')"><i class="fas fa-crown"></i> Plans</button>
+    <button class="nav-item" id="navSettings" onclick="switchTab('settings')"><i class="fas fa-user-circle"></i> Account</button>
+</div>
+
+<div class="side-panel" id="sidePanel">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-shrink: 0;">
+        <h2 style="font-weight:800; font-size:18px; margin:0; color:#fff; letter-spacing:0.3px;">HOSTING VIP</h2>
+        <button class="nav-toggle" onclick="toggleSidePanel()" style="background:transparent;"><i class="fas fa-times" style="color:#a1a1aa; font-size:16px;"></i></button>
+    </div>
+    
+    <div class="side-menu-content">
+        <button class="side-menu-item active" id="sideNavHome" onclick="switchTab('home'); toggleSidePanel();"><i class="fas fa-th-large"></i> Overview</button>
+        <a href="/coin-purchase" class="side-menu-item"><i class="fas fa-coins" style="color: #00ff7f;"></i> Purchase Coins</a>
+        <button class="side-menu-item" id="sideNavPremium" onclick="switchTab('premium'); toggleSidePanel();"><i class="fas fa-crown"></i> Premium Hosting</button>
+        <a href="/free_coin" class="side-menu-item"><i class="fas fa-gift" style="color: #e4e4e7;"></i> FREE COIN</a>   
+        <button class="side-menu-item" id="sideNavSettings" onclick="switchTab('settings'); toggleSidePanel();"><i class="fas fa-cog"></i> Settings</button>
+    </div>
+
+    <div class="user-pill">
+        <div class="user-info-block">
+            <div style="font-weight:700; font-size:14px; color:#fff; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display: flex; align-items: center; gap: 5px;">
+                <span id="sideDispName">Loading...</span> <i class="fas fa-crown" style="color: #f59e0b; font-size: 12px;"></i>
+            </div>
+            <div style="font-size:11px; color:#71717a; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" id="sideDispEmail">Loading...</div>
+        </div>
+        <a href="/logout" class="btn btn-black" style="color:#ff453a; font-weight:700; font-size:15px; border-color:#27272a; background:#18181b; padding: 8px 12px; border-radius: 8px; flex-shrink: 0; width: 100%; text-decoration:none;"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+    </div>
+</div>
+
+<div id="editor">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+        <span id="edFile" style="font-family:'JetBrains Mono'; font-size:13px;"></span>
+        <div style="display:flex; gap:10px;">
+            <button class="btn btn-gray" onclick="closeEditor()">CLOSE</button>
+            <button class="btn btn-blue" onclick="saveFile()">SAVE</button>
+        </div>
+    </div>
+    <textarea id="edText"></textarea>
+</div>
+
+<script>
+let allServersGlobal = []; 
+let isMuted = localStorage.getItem('musicIsMuted') === 'true';
+let savedVolume = parseInt(localStorage.getItem('musicSharedVolume')) || 20; 
+let countdownInterval = null;
+let currentUserEmail = "";
+let curSrv = null; 
+let editorInstance = null;
+
+function updateClock() {
+    const now = new Date();
+    let h = now.getHours();
+    let m = now.getMinutes();
+    let s = now.getSeconds();
+    let ampm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12; h = h ? h : 12; 
+    m = m < 10 ? '0' + m : m; s = s < 10 ? '0' + s : s;
+    const clockEl = document.getElementById('liveClock');
+    if(clockEl) clockEl.textContent = h + ':' + m + ':' + s + ' ' + ampm;
+
+    let day = now.getDate(); let month = now.getMonth() + 1; let year = now.getFullYear();
+    day = day < 10 ? '0' + day : day; month = month < 10 ? '0' + month : month;
+    const dateEl = document.getElementById('liveDate');
+    if(dateEl) dateEl.textContent = day + '-' + month + '-' + year;
+}
+setInterval(updateClock, 1000); updateClock();
+
+async function toggleMute() {
+    const music = document.getElementById('bgMusic');
+    const btn = document.getElementById('muteBtn').querySelector('span');
+    if (!isMuted) {
+        if (music) music.volume = 0; if (btn) btn.innerText = "🔇";
+        isMuted = true; localStorage.setItem('musicIsMuted', 'true');
+        await sendVolumeToServer(0);
+    } else {
+        if (music) music.volume = savedVolume / 100; if (btn) btn.innerText = "🔊";
+        isMuted = false; localStorage.setItem('musicIsMuted', 'false');
+        await sendVolumeToServer(savedVolume);
+    }
+}
+
+async function sendVolumeToServer(val) {
+    try { await fetch('/admin/music/volume', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({volume: parseInt(val)}) }); } catch(e) {}
+}
+
+async function fetchUserData() {
+    try {
+        const res = await fetch('/api/user_info');
+        if (!res.ok) throw new Error("Route fallback trigger");
+        const data = await res.json();
+        if(data && data.email) {
+            currentUserEmail = data.email;
+            updateUIElements(data.name || "User", data.email);
+        }
+    } catch (e) { updateUIElements("User", "Loading..."); }
+}
+
+function updateUIElements(name, email) {
+    const safeName = name || "User";
+    const firstLetter = safeName.length > 0 ? safeName.charAt(0).toUpperCase() : 'U';
+    document.getElementById('welcomeUserName').innerText = safeName;
+    document.getElementById('dispAvatarLetter').innerText = firstLetter;
+    document.getElementById('dispTopName').innerText = safeName;
+    document.getElementById('dispTopEmail').innerText = email;
+    document.getElementById('setDispName').value = safeName;
+    document.getElementById('setDispEmail').value = email;
+    document.getElementById('sideDispName').innerText = safeName;
+    document.getElementById('sideDispEmail').innerText = email;
+}
+
+function showCustomAlert(message, isError = false) {
+    const alertBox = document.getElementById('msgAlert');
+    const alertText = document.getElementById('msgAlertText');
+    alertText.innerText = message;
+    if(isError) { alertBox.style.background = 'rgba(255, 69, 58, 0.15)'; alertBox.style.borderColor = '#ff453a'; alertBox.style.color = '#ff453a'; } 
+    else { alertBox.style.background = 'rgba(16, 185, 129, 0.15)'; alertBox.style.borderColor = '#10b981'; alertBox.style.color = '#10b981'; }
+    alertBox.style.display = 'flex'; alertBox.classList.remove('animate__fadeOut'); alertBox.classList.add('animate__fadeIn');
+    setTimeout(() => { alertBox.classList.remove('animate__fadeIn'); alertBox.classList.add('animate__fadeOut'); setTimeout(() => { alertBox.style.display = 'none'; }, 500); }, 3000);
+}
+
+async function triggerProfileUpdate() {
+    const updatedName = document.getElementById('setDispName').value;
+    try {
+        const res = await fetch('/api/user/update_all', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ action: 'profile', name: updatedName }) });
+        const data = await res.json();
+        if(res.ok) { updateUIElements(updatedName, document.getElementById('setDispEmail').value); showCustomAlert('Profile name updated successfully!'); } 
+        else showCustomAlert(data.msg || 'Error updating profile', true);
+    } catch(e) { showCustomAlert('Server error occurred', true); }
+}
+
+async function triggerPasswordUpdate() {
+    const inputs = document.querySelectorAll('#settingsView .settings-input[type="password"]');
+    const currentPassword = inputs[0].value; const newPassword = inputs[1].value; const confirmPassword = inputs[2].value;
+    if(!currentPassword || !newPassword || !confirmPassword) return showCustomAlert('Please fill all password fields!', true);
+    if(newPassword !== confirmPassword) return showCustomAlert('New passwords do not match!', true);
+    if(newPassword.length < 6) return showCustomAlert('Password must be at least 6 characters!', true);
+    try {
+        const res = await fetch('/api/user/update_all', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ action: 'password', current_password: currentPassword, new_password: newPassword }) });
+        const data = await res.json();
+        if(res.ok) { showCustomAlert('Password updated successfully!'); inputs[0].value = ''; inputs[1].value = ''; inputs[2].value = ''; } 
+        else showCustomAlert(data.msg || 'Error updating password', true);
+    } catch(e) { showCustomAlert('Server error occurred', true); }
+}
+
+async function deleteUserAccount() {
+    const confirm = await Swal.fire({ title: 'Delete Account?', text: 'This will permanently erase your account and all data.', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ff3b30', background: '#1c1c1e', color: '#fff' });
+    if (confirm.isConfirmed) { try { const res = await fetch('/api/delete_account', { method: 'POST' }); if (res.ok) window.location.href = '/login'; } catch (e) { console.error("Error deleting account"); } }
+}
+
+function switchTab(tab) {
+    document.body.classList.remove('menu-open');
+    document.getElementById('homeView').style.display = 'none';
+    document.getElementById('manageView').style.display = 'none';
+    document.getElementById('settingsView').style.display = 'none';
+    document.getElementById('premiumPlanView').style.display = 'none';
+
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.side-menu-item').forEach(el => el.classList.remove('active'));
+
+    if(tab === 'home') {
+        document.getElementById('homeView').style.display = 'block';
+        document.getElementById('navHome').classList.add('active');
+        document.getElementById('sideNavHome').classList.add('active');
+        loadSrv(); 
+    } else if(tab === 'settings') {
+        document.getElementById('settingsView').style.display = 'block';
+        document.getElementById('navSettings').classList.add('active');
+        document.getElementById('sideNavSettings').classList.add('active');
+    } else if(tab === 'premium') {
+        document.getElementById('premiumPlanView').style.display = 'block';
+        document.getElementById('navPremium').classList.add('active');
+        document.getElementById('sideNavPremium').classList.add('active');
+    }
+}
+
+async function fetchCoins() {
+    try {
+        const res = await fetch('/api/get_user_coins'); const data = await res.json();
+        if (data && data.total_coins !== undefined) document.getElementById('coinDisplay').innerText = Math.floor(data.total_coins);
+        else if (data && data.coins !== undefined) document.getElementById('coinDisplay').innerText = Math.floor(data.coins);
+    } catch (e) { document.getElementById('coinDisplay').innerText = "0"; }
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+    loadSrv(); fetchCoins(); fetchUserData(); 
+    const music = document.getElementById('bgMusic'); const btn = document.getElementById('muteBtn').querySelector('span');
+    let playlist = [];
+    try {
+        const response = await fetch('/api/all_songs'); const songs = await response.json();
+        if (songs && songs.length > 0) playlist = songs.map(s => '/static/uploads/' + s.name);
+    } catch (e) {}
+
+    let currentIndex = parseInt(localStorage.getItem('musicCurrentIndex')) || 0;
+    const savedTime = localStorage.getItem('musicCurrentTime');
+    if (playlist.length > 0) { music.src = playlist[currentIndex]; if (savedTime) music.currentTime = parseFloat(savedTime); }
+
+    const playNextSong = () => {
+        if (playlist.length === 0) return;
+        currentIndex = (currentIndex + 1) % playlist.length; localStorage.setItem('musicCurrentIndex', currentIndex);
+        music.src = playlist[currentIndex]; music.load();
+        if (isMuted) music.volume = 0; else music.volume = savedVolume / 100;
+        music.play().catch(() => {});
+    };
+    if(music) music.onended = () => playNextSong();
+
+    if (music) { if (isMuted) { music.volume = 0; if (btn) btn.innerText = "🔇"; } else { music.volume = savedVolume / 100; if (btn) btn.innerText = "🔊"; } }
+
+    const playMusic = () => {
+        if (isMuted) music.volume = 0; else music.volume = savedVolume / 100;
+        music.play().catch(() => {}); document.removeEventListener('click', playMusic);
+    };
+    document.addEventListener('click', playMusic);
+
+    setInterval(() => { if (music && !music.paused) { localStorage.setItem('musicCurrentTime', music.currentTime); localStorage.setItem('musicCurrentIndex', currentIndex); } }, 1000);
+});
+
+function calculateExpiryTarget(srv) {
+    const serverId = srv.id || srv.folder || srv.name;
+    const uniqueCacheKey = `expiry_${currentUserEmail || 'guest'}_${serverId}`;
+    
+    let srvStatus = (srv.status || '').toString().toLowerCase();
+    let isOfflineOrPaused = srvStatus === 'paused' || srvStatus === 'offline' || srvStatus === 'stopped';
+    
+    const cachedTime = localStorage.getItem(uniqueCacheKey);
+    if (cachedTime && !isOfflineOrPaused) { 
+        return parseInt(cachedTime); 
+    }
+
+    if (srv.expired_at) { 
+        let parsedTime = new Date(srv.expired_at).getTime();
+        localStorage.setItem(uniqueCacheKey, parsedTime.toString());
+        return parsedTime; 
+    }
+
+    let calculatedTime;
+    let planTypeLower = (srv.plan_type || '').toLowerCase();
+    let isPremium = planTypeLower === 'premium';
+
+    if (!isPremium) {
+        calculatedTime = new Date().getTime() + (5 * 24 * 60 * 60 * 1000);
+    } else {
+        let srvDays = 30;
+        if (srv.duration_type === '1year') srvDays = 365;
+        calculatedTime = new Date().getTime() + (srvDays * 24 * 60 * 60 * 1000);
+    }
+    localStorage.setItem(uniqueCacheKey, calculatedTime.toString());
+    return calculatedTime;
+}
+
+function startCountdown(targetTime, srv) {
+    if (countdownInterval) clearInterval(countdownInterval);
+    function updateTimer() {
+        let now = new Date().getTime();
+        let distance = targetTime - now;
+        let countdownElement = document.getElementById('countdownDisplay');
+        if (!countdownElement) return;
+
+        let planTypeLower = (srv.plan_type || '').toLowerCase();
+        let isPrem = planTypeLower === 'premium';
+        
+        let srvStatus = (srv.status || '').toString().toLowerCase();
+        let isPaused = srvStatus === 'paused' || srvStatus === 'offline';
+
+        if (isPaused) {
+            countdownElement.innerHTML = "Time Paused (Server Offline)";
+            countdownElement.style.color = '#a1a1aa';
+            return;
+        }
+
+        if (distance < 0) {
+            clearInterval(countdownInterval);
+            let actionGrid = document.getElementById('panelActionGrid');
+            
+            if (!isPrem) {
+                countdownElement.innerHTML = "Permanently Locked / Expired";
+                countdownElement.style.color = '#ff453a';
+                if (actionGrid) {
+                    actionGrid.innerHTML = `<button class="btn btn-black" style="grid-column: span 2; color:#ff453a; border-color:rgba(255,69,58,0.2);" disabled><i class="fas fa-lock"></i> Free Server Locked Forever</button>`;
+                }
+            } else {
+                countdownElement.innerHTML = "Offline / Expired";
+                countdownElement.style.color = '#ff453a';
+                if (actionGrid) {
+                    actionGrid.innerHTML = `<button class="btn btn-blue" style="grid-column: span 2; background: #f59e0b; color: #000;" onclick="switchTab('premium')"><i class="fas fa-arrow-circle-up"></i> Renew / Upgrade Premium</button>`;
+                }
+            }
+            return;
+        }
+
+        let days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        let hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        let minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        let seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        countdownElement.innerHTML = `${days} Days, ${hours} Hours, ${minutes} Min, ${seconds} Sec`;
+        countdownElement.style.color = '#f59e0b';
+    }
+    updateTimer();
+    countdownInterval = setInterval(updateTimer, 1000);
+}
+
+function updateMainPanelWithServer(primarySrv, totalCount) {
+    if (!primarySrv) return;
+    curSrv = primarySrv; 
+    let planTypeLower = (primarySrv.plan_type || '').toLowerCase();
+    let isPremium = planTypeLower === 'premium';
+    
+    let iconBox = document.getElementById('panelTypeIcon'); 
+    let serverCleanName = isPremium ? "Premium Python" : "Free Python";
+
+    let targetTime = calculateExpiryTarget(primarySrv);
+    let isExpired = (targetTime - new Date().getTime()) < 0;
+
+    let sOnline = false;
+    if (!isExpired) {
+        let sStat = (primarySrv.status || '').toLowerCase(); 
+        if(sStat === 'running' || sStat === 'online' || sStat === 'active') sOnline = true;
+    }
+
+    let animationClass = sOnline ? "logo-running-spin" : "logo-interval-spin";
+    
+    if (iconBox) {
+        iconBox.className = "panel-icon-box python"; 
+        iconBox.innerHTML = `<i class="fab fa-python ${animationClass}"></i>`; 
+    }
+    
+    let realStorage = primarySrv.storage_limit || '1GB'; 
+    let realRam = primarySrv.ram_limit || '256MB'; 
+    let realCpu = primarySrv.cpu_limit || '25%';
+    
+    if(document.getElementById('displayRamVal')) document.getElementById('displayRamVal').innerText = realRam;
+    if(document.getElementById('displayStorageVal')) document.getElementById('displayStorageVal').innerText = realStorage;
+    if(document.getElementById('displayCpuVal')) document.getElementById('displayCpuVal').innerText = realCpu;
+
+    startCountdown(targetTime, primarySrv);
+
+    let cardBox = document.getElementById('dynamicPanelCard');
+    if(cardBox) {
+        if(isPremium) { 
+            cardBox.style.border = "1px solid rgba(245, 158, 11, 0.2)"; 
+            cardBox.style.background = "#141009"; 
+            if(document.getElementById('panelTitleText')) document.getElementById('panelTitleText').innerHTML = serverCleanName + ' <span class="panel-badge premium">PREMIUM</span>'; 
+        } else { 
+            cardBox.style.border = "1px solid rgba(16, 185, 129, 0.2)"; 
+            cardBox.style.background = "#090e14"; 
+            if(document.getElementById('panelTitleText')) document.getElementById('panelTitleText').innerHTML = serverCleanName + ' <span class="panel-badge free">FREE TRIAL</span>'; 
+        }
+    }
+
+    let actionGrid = document.getElementById('panelActionGrid');
+    if (actionGrid) {
+        if (isExpired) {
+            if (!isPremium) {
+                actionGrid.innerHTML = `<button class="btn btn-black" style="grid-column: span 2; color:#ff453a; border-color:rgba(255,69,58,0.2);" disabled><i class="fas fa-lock"></i> Free Server Locked Forever</button>`;
+            } else {
+                actionGrid.innerHTML = `<button class="btn btn-blue" style="grid-column: span 2; background: #f59e0b; color: #000;" onclick="switchTab('premium')"><i class="fas fa-arrow-circle-up"></i> Renew / Upgrade Premium</button>`;
+            }
+        } else {
+            actionGrid.innerHTML = `<button class="btn btn-green" id="btnOpenPanel"><i class="fas fa-external-link-alt"></i> Open Panel</button>
+                                    <button class="btn btn-gray" id="btnManageServer"><i class="fas fa-cog"></i> Manage Server</button>`;
+            
+            let openBtn = document.getElementById('btnOpenPanel');
+            let manageBtn = document.getElementById('btnManageServer');
+            let folderName = primarySrv.folder || primarySrv.name.toLowerCase();
+
+            if (openBtn) {
+                openBtn.onclick = function() {
+                    if (primarySrv.panel_url && primarySrv.panel_url !== '0' && primarySrv.panel_url !== '') {
+                        window.open(primarySrv.panel_url, '_blank');
+                    } else {
+                        window.open('/server/' + folderName, '_blank');
+                    }
+                };
+            }
+            if (manageBtn) {
+                manageBtn.onclick = function() { openSrv(primarySrv); };
+            }
+        }
+    }
+
+    if(document.getElementById('panelSubText')) document.getElementById('panelSubText').innerText = 'Connected · ' + totalCount + ' active server(s)';
+}
+
+function selectActiveServer(index) { if(allServersGlobal[index]) updateMainPanelWithServer(allServersGlobal[index], allServersGlobal.length); }
+
+async function loadSrv() { 
+    try { 
+        const r = await fetch('/servers'); const d = await r.json(); 
+        let totalCount = 0; let freeCount = 0; let premiumCount = 0;
+
+        let rawServers = [];
+        if (d.servers) {
+            rawServers = Array.isArray(d.servers) ? d.servers : Object.values(d.servers);
+        } else if (Array.isArray(d)) {
+            rawServers = d;
+        } else if (typeof d === 'object') {
+            rawServers = Object.values(d);
+        }
+
+        if(rawServers.length > 0) { 
+            allServersGlobal = rawServers; totalCount = rawServers.length;
+            rawServers.forEach(s => { 
+                let planTypeLower = (s.plan_type || '').toLowerCase();
+                if(planTypeLower === 'premium') premiumCount++; else freeCount++; 
+            });
+            updateMainPanelWithServer(rawServers[0], totalCount);
+
+            document.getElementById('noServerHero').style.display = 'none'; 
+            document.getElementById('activeServerPanel').style.display = 'block'; 
+
+            document.getElementById('srvList').innerHTML = rawServers.map((s, idx) => {
+                let planTypeLower = (s.plan_type || '').toLowerCase();
+                let isPrem = planTypeLower === 'premium';
+                
+                let targetTime = calculateExpiryTarget(s);
+                let isExpired = (targetTime - new Date().getTime()) < 0;
+
+                let sOnline = false;
+                if (!isExpired) {
+                    let sStat = (s.status || '').toLowerCase(); 
+                    if(sStat === 'running' || sStat === 'online' || sStat === 'active') sOnline = true;
+                }
+
+                let sStorage = s.storage_limit || '1GB'; 
+                let sRam = s.ram_limit || '256MB'; 
+                let sCpu = s.cpu_limit || '25%';
+
+                let formattedExpiry = "N/A";
+                if (isExpired) {
+                    formattedExpiry = isPrem ? "Offline / Expired" : "Locked / Expired";
+                } else {
+                    let distance = targetTime - new Date().getTime();
+                    let dLeft = Math.ceil(distance / (1000 * 60 * 60 * 24));
+                    formattedExpiry = dLeft > 0 ? dLeft + " Days Left" : "Expired";
+                }
+
+                let shortDisplayName = isPrem ? "Premium Python" : "Free Python";
+
+                return `<div class="srv-card animate__animated animate__fadeInUp" onclick="selectActiveServer(${idx})">
+                    <div>
+                        <div style="font-weight:700; font-size:15px; color:${isPrem?'#f59e0b':'#fff'}">${shortDisplayName} ${isPrem?'⭐':''}</div>
+                        <div style="font-size:11px; color:var(--text-dim); display:flex; gap:10px; align-items:center; margin-top: 4px;">
+                            <span style="color:#f59e0b; font-weight:700; text-transform: uppercase;"><i class="far fa-clock" style="font-size:10px; margin-right: 4px;"></i>${formattedExpiry}</span>
+                        </div>
+                    </div>
+                    <div style="text-align:right">
+                        ${isExpired 
+                          ? (isPrem 
+                              ? `<button class="btn btn-blue" style="padding: 4px 10px; font-size: 10px; background: #f59e0b; color: #000; border-radius: 6px;" onclick="event.stopPropagation(); switchTab('premium')"><i class="fas fa-arrow-circle-up"></i> Renew</button>`
+                              : `<span style="font-size:10px; font-weight:700; color:#ff453a;"><i class="fas fa-lock"></i> LOCKED</span>`)
+                          : `<span style="font-size:10px; font-weight:700; color:${sOnline?'#10b981':'#ff453a'}">${sOnline?'RUNNING':'OFFLINE'}</span>`
+                        }
+                        <div style="font-size:10px; color:#a1a1aa; margin-top:4px;">${sCpu} | ${sRam} | ${sStorage}</div>
+                    </div>
+                </div>`;
+            }).join(''); 
+        } else { 
+            document.getElementById('noServerHero').style.display = 'block'; 
+            document.getElementById('activeServerPanel').style.display = 'none'; 
+        }
+        document.getElementById('statTotal').innerText = totalCount; document.getElementById('statFree').innerText = freeCount; document.getElementById('statPremium').innerText = premiumCount;
+    } catch (e) { 
+        document.getElementById('noServerHero').style.display = 'block'; 
+        document.getElementById('activeServerPanel').style.display = 'none'; 
+    } 
+}
+
+function toggleSidePanel() { const panel = document.getElementById('sidePanel'); panel.classList.toggle('open'); if(panel.classList.contains('open')) document.body.classList.add('menu-open'); else document.body.classList.remove('menu-open'); }
+
+function openSrv(s) { 
+    if(!s || (!s.folder && !s.name)) {
+        Swal.fire('Error', 'Invalid server selection', 'error');
+        return;
+    }
+    let targetTime = calculateExpiryTarget(s);
+    let isExpired = (targetTime - new Date().getTime()) < 0;
+
+    if (isExpired) {
+        let planTypeLower = (s.plan_type || '').toLowerCase();
+        let isPrem = planTypeLower === 'premium';
+        
+        if(!isPrem) {
+            Swal.fire({
+                icon: 'error', title: 'Server Permanently Locked', text: 'আপনার ফ্রি সার্ভারটির মেয়াদ শেষ হয়ে গেছে এবং এটি চিরতরে লক হয়ে গেছে। এটি আর রিনিউ বা ফাইল এক্সেস করা সম্ভব নয়।',
+                background: '#1c1c1e', color: '#fff', confirmButtonColor: '#ff453a', confirmButtonText: 'OK'
+            });
+        } else {
+            Swal.fire({
+                icon: 'error', title: 'Server Suspended / Expired', text: 'Your premium server lifetime has expired. Please renew the server using coins to unlock panel and files access.',
+                background: '#1c1c1e', color: '#fff', showCancelButton: true, confirmButtonColor: '#f59e0b', confirmButtonText: 'Upgrade / Renew'
+            }).then((result) => { if (result.isConfirmed) { switchTab('premium'); } });
+        }
+        return;
+    }
+
+    curSrv = s; 
+    document.getElementById('homeView').style.display='none'; 
+    document.getElementById('settingsView').style.display='none'; 
+    document.getElementById('premiumPlanView').style.display='none'; 
+    document.getElementById('manageView').style.display='block'; 
+    
+    let serverTitleEl = document.getElementById('manageServerTitle');
+    if (serverTitleEl) serverTitleEl.innerText = "Manage: " + (s.name || "Cloud Server");
+    
+    loadFiles(); 
+}
+
+function goHome() { curSrv = null; switchTab('home'); loadSrv(); }
+
+async function loadFiles() { 
+    if(!curSrv || (!curSrv.folder && !curSrv.name)) return; 
+    let folderName = curSrv.folder || curSrv.name.toLowerCase(); 
+    try { 
+        const r = await fetch(`/files/list/${folderName}`); 
+        const d = await r.json(); 
+        document.getElementById('fileList').innerHTML = d.map(f => `<div class="file-item" onclick="if(!${f.is_dir}) editFile('${f.name}')"><span><i class="fas ${f.is_dir?'fa-folder':'fa-file'}"></i> ${f.name}</span><i class="fas fa-trash" style="color:#ff453a; font-size:14px" onclick="event.stopPropagation(); deleteFile('${f.name}')"></i></div>`).join(''); 
+    } catch (e) { } 
+}
+
+async function editFile(n) { 
+    if(!curSrv || (!curSrv.folder && !curSrv.name)) return;
+    let folderName = curSrv.folder || curSrv.name.toLowerCase();
+    try { 
+        const res = await fetch(`/files/read/${folderName}?name=${n}`); 
+        const data = await res.json(); 
+        document.getElementById('edFile').innerText = n; 
+        document.getElementById('edText').value = data.content; 
+        document.getElementById('editor').style.display = 'block'; 
+        
+        let modeType = "python";
+        if (n.endsWith('.json')) modeType = "application/json";
+
+        if(!editorInstance) { 
+            editorInstance = CodeMirror.fromTextArea(document.getElementById('edText'), { mode: modeType, theme: "dracula", lineNumbers: true }); 
+        } else { 
+            editorInstance.setOption("mode", modeType);
+            editorInstance.setValue(data.content); 
+        } 
+    } catch (e) { } 
+}
+
+async function saveFile() { 
+    if(!curSrv || (!curSrv.folder && !curSrv.name)) return; 
+    let folderName = curSrv.folder || curSrv.name.toLowerCase(); 
+    const n = document.getElementById('edFile').innerText; 
+    const c = editorInstance.getValue(); 
+    try { 
+        await fetch(`/files/save/${folderName}`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ name: n, content: c })}); 
+        closeEditor(); 
+        Swal.fire({toast: true, position: 'top-end', icon: 'success', title: 'Saved', timer: 2000, background: '#1c1c1e', color: '#fff', showConfirmButton: false}); 
+    } catch (e) { } 
+}
+
+function closeEditor() { document.getElementById('editor').style.display = 'none'; }
+
+async function createNewFile() { 
+    if(!curSrv || (!curSrv.folder && !curSrv.name)) return; 
+    let folderName = curSrv.folder || curSrv.name.toLowerCase(); 
+    const { value: n } = await Swal.fire({ title: 'Filename', input: 'text', background: '#1c1c1e', color: '#fff' }); 
+    if (n) { try { await fetch(`/files/create/${folderName}`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ name: n }) }); loadFiles(); } catch (e) { } } 
+}
+
+async function deleteFile(n) { 
+    if(!curSrv || (!curSrv.folder && !curSrv.name)) return; 
+    let folderName = curSrv.folder || curSrv.name.toLowerCase(); 
+    const res = await Swal.fire({ title: 'Delete?', text: n, icon: 'warning', showCancelButton: true, background: '#1c1c1e', color: '#fff' }); 
+    if (res.isConfirmed) { try { await fetch(`/files/delete/${folderName}`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ name: n }) }); loadFiles(); } catch (e) { } } 
+}
+
+async function deleteServer() { 
+    if(!curSrv || (!curSrv.folder && !curSrv.name)) return; 
+    let folderName = curSrv.folder || curSrv.name.toLowerCase(); 
+    const confirm = await Swal.fire({title: 'Delete?', text: 'This will erase all data.', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ff3b30', background: '#1c1c1e', color: '#fff'}); 
+    if (confirm.isConfirmed) { try { const res = await fetch(`/server/delete/${folderName}`, { method: 'POST' }); const data = await res.json(); if (data.status === 'deleted' || data.success === true) { goHome(); loadSrv(); Swal.fire({toast: true, position: 'top-end', icon: 'success', title: 'Deleted', timer: 2000, background: '#1c1c1e', color: '#fff'}); } } catch (e) { } } 
+}
+
+async function uploadFile(input) { 
+    if(!curSrv || (!curSrv.folder && !curSrv.name) || !input.files[0]) return; 
+    let folderName = curSrv.folder || curSrv.name.toLowerCase(); 
+    let fd = new FormData(); fd.append("file", input.files[0]); 
+    try { await fetch(`/files/upload/${folderName}`, { method: 'POST', body: fd }); loadFiles(); Swal.fire({toast: true, position: 'top-end', icon: 'success', title: 'Uploaded', timer: 2000, background: '#1c1c1e', color: '#fff'}); } catch (e) { } 
+}
+
+function showTab(evt, tabName) {
+    document.querySelectorAll('.plan-content').forEach(c => c.style.display = "none");
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(tabName).style.display = "block";
+    evt.currentTarget.classList.add('active');
+}
+
+function selectPeriod(element, period, price) {
+    const priceBox = element.closest('.price-box');
+    priceBox.querySelectorAll('.price-btn').forEach(btn => btn.classList.remove('selected'));
+    element.classList.add('selected');
+}
+
+function processPurchase(button) {
+    const card = button.closest('.plan-card');
+    const planType = card.getAttribute('data-plan'); 
+    const ram = card.getAttribute('data-ram');
+    const cpu = card.getAttribute('data-cpu');
+    const storage = card.getAttribute('data-storage');
+    
+    const selectedBtn = card.querySelector('.price-btn.selected');
+    const finalPrice = selectedBtn.querySelector('.p-amount').innerText;
+    
+    const isYearly = selectedBtn.innerText.toLowerCase().includes('yearly');
+    const periodText = isYearly ? 'Yearly' : 'Monthly';
+    const backendDuration = isYearly ? '1year' : '1month'; 
+    const durationDays = isYearly ? 365 : 30;
+
+    const planPayload = {
+        plan: `Premium ${planType}`, ram_limit: ram, duration: backendDuration, plan_type: planType,            
+        cpu: cpu, storage: storage, period: periodText, days: durationDays, price: finalPrice,
+        performance_mode: isYearly ? "ultra_boost" : "standard",
+        priority: isYearly ? "high" : "normal"
+    };
+    buyPlan(planPayload);
+}
+
+async function buyPlan(payload) {
+    const confirm = await Swal.fire({
+        title: 'Confirm Purchase?', text: `Do you want to buy ${payload.plan} (${payload.period}) for ${payload.price} coins? This will instantly sync with your server panel for ${payload.days} days.`,
+        icon: 'question', showCancelButton: true, background: '#1c1c1e', color: '#fff', confirmButtonColor: '#f59e0b', cancelButtonColor: '#ef4444'
+    });
+    
+    if (confirm.isConfirmed) {
+        Swal.fire({
+            title: 'Processing Order...', text: 'Syncing resources with Pterodactyl Panel...', allowOutsideClick: false,
+            background: '#1c1c1e', color: '#fff', didOpen: () => { Swal.showLoading(); }
+        });
+        try {
+            const res = await fetch('/api/buy_plan', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
+            const d = await res.json();
+            Swal.close();
+
+            if(d.status === 'success' || d.success === true) {
+                if (curSrv && (curSrv.folder || curSrv.name)) {
+                    let folderName = curSrv.folder || curSrv.name.toLowerCase();
+                    const uniqueCacheKey = `expiry_${currentUserEmail || 'guest'}_${folderName}`;
+                    localStorage.removeItem(uniqueCacheKey);
+                }
+                await Swal.fire({ icon: 'success', title: 'Purchased Successfully!', text: d.msg || `${payload.plan} updated in your server panel.`, background: '#1c1c1e', color: '#fff' });
+                await fetchCoins(); await loadSrv(); switchTab('home'); 
+            } else {
+                Swal.fire({ icon: 'error', title: 'Purchase Failed', text: d.msg || 'Insufficient coins or synchronization error.', background: '#1c1c1e', color: '#fff' });
+            }
+        } catch (err) {
+            Swal.close(); Swal.fire({ icon: 'error', title: 'System Error', text: 'Server communication error. Please check your network connection.', background: '#1c1c1e', color: '#fff' });
+        }
+    }
+}
+</script>
+</body>
+</html>

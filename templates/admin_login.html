@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login | TAHMID CODEX</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ac: #00ff41;
+      --ac-dim: #00ff4155;
+      --ac-glow: #00ff4122;
+      --name-color: #6b7280;
+    }
+
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{background:#06010f;font-family:'JetBrains Mono',monospace;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden}
+    
+    canvas{position:fixed;inset:0;z-index: 1;}
+
+    .container{position:relative;z-index:10}
+
+    .card{
+      background:rgba(10, 0, 21, 0.85);
+      border:2px solid var(--ac);
+      border-radius:12px;
+      padding:36px 32px;
+      width:340px;
+      box-shadow:0 0 32px var(--ac-glow);
+      transition: all 0.8s ease;
+      backdrop-filter: blur(2px);
+    }
+    
+    .icon{font-size:40px;text-align:center;margin-bottom:12px}
+    .title{text-align:center;font-size:16px;font-weight:700;color:var(--ac);letter-spacing:2px;margin-bottom:4px;text-shadow:0 0 10px var(--ac); transition: all 0.8s ease;}
+    .sub{text-align:center;font-size:11px;color:var(--name-color);margin-bottom:24px; transition: all 0.8s ease; font-weight: bold;}
+    
+    .error{background:rgba(42, 8, 8, 0.9);border:1px solid #ef4444;border-radius:8px;padding:9px 12px;color:#f87171;font-size:12px;margin-bottom:14px}
+    
+    input{
+      width:100%;
+      padding:12px 14px;
+      background:rgba(17, 17, 17, 0.7);
+      border:2px solid var(--ac);
+      border-radius:8px;
+      color: var(--ac); 
+      caret-color: var(--ac);
+      font-family:inherit;
+      font-size:15px;
+      font-weight: 700;
+      outline:none;
+      margin-bottom:14px; 
+      transition: border 0.3s ease, color 0.3s ease;
+    }
+    input:focus{
+      border-color: #ffffff;
+      box-shadow: 0 0 10px var(--ac-dim);
+    }
+    input::placeholder{
+      color: var(--ac); 
+      opacity: 0.5;
+    }
+    
+    .btn{width:100%;padding:11px;background:transparent;border:2px solid var(--ac);border-radius:8px;color:var(--ac);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:2px;transition:all 0.8s ease}
+    .btn:hover{background:var(--ac-dim);box-shadow:0 0 16px var(--ac-glow)}
+    
+    .back{display:block;text-align:center;margin-top:12px;font-size:11px;color:#4b5563;text-decoration:none;transition:color .2s}
+    .back:hover{color:#9ca3af}
+  </style>
+</head>
+<body>
+
+  <canvas id="matrix"></canvas>
+
+  <div class="container">
+    <div class="card">
+      <div class="icon">🌐</div>
+      <div class="title">ADMIN ACCESS</div>
+      <div class="sub">TAHMID CODEX CONTROL PANEL</div>
+      {% if error %}<div class="error">▲ {{ error }}</div>{% endif %}
+      
+      <form method="POST" id="loginForm">
+        <input type="password" name="password" id="passInput" placeholder="Admin password" required autofocus>
+        <button type="submit" class="btn">&gt;_&lt; ACCESS PANEL</button>
+      </form>
+      <a href="/login" class="back">← BACK TO LOGIN</a>
+    </div>
+  </div>
+
+  <audio id="loginSound" src="https://files.catbox.moe/0n33xi.mp3" preload="auto"></audio>
+
+  <script>
+    // Matrix রেইন ইফেক্ট
+    const canvas = document.getElementById('matrix');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()ｱｲｳｴｵｶｷｸｹｺ";
+    const fontSize = 16;
+    const columns = canvas.width / fontSize;
+    const drops = Array(Math.floor(columns)).fill(1);
+
+    function drawMatrix() {
+      ctx.fillStyle = "rgba(6, 1, 15, 0.15)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      const themeColor = getComputedStyle(document.documentElement).getPropertyValue('--ac').trim();
+      ctx.fillStyle = themeColor;
+      ctx.font = fontSize + "px 'JetBrains Mono'";
+      for (let i = 0; i < drops.length; i++) {
+        const text = chars.charAt(Math.floor(Math.random() * chars.length));
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+        drops[i]++;
+      }
+    }
+    setInterval(drawMatrix, 50);
+
+    // সাউন্ড ও সাবমিট
+    const loginForm = document.getElementById('loginForm');
+    const loginSound = document.getElementById('loginSound');
+    loginForm.addEventListener('submit', function(e) {
+      loginSound.play();
+      setTimeout(() => { loginForm.submit(); }, 500); 
+      e.preventDefault();
+    });
+
+    // অটো থিম ও পাসওয়ার্ড কার্সর কালার ফিক্স
+    let autoInterval = null;
+    const themeColors = ["#a855f7", "#00ff41", "#38bdf8", "#ef4444", "#fbbf24", "#06b6d4", "#ec4899", "#84cc16"];
+    let colorIndex = 0;
+
+    function checkAutoMode() {
+      const isAuto = localStorage.getItem("autoThemeState") === "on";
+      const pInput = document.getElementById('passInput');
+      
+      if (isAuto) {
+        if (!autoInterval) {
+          autoInterval = setInterval(() => {
+            const nextColor = themeColors[colorIndex];
+            document.documentElement.style.setProperty('--ac', nextColor);
+            document.documentElement.style.setProperty('--ac-dim', nextColor + '55');
+            document.documentElement.style.setProperty('--ac-glow', nextColor + '22');
+            
+            if(pInput) {
+              pInput.style.color = nextColor;
+              pInput.style.caretColor = nextColor;
+              pInput.style.borderColor = nextColor;
+            }
+
+            const nameNextColor = themeColors[(colorIndex + 1) % themeColors.length];
+            document.documentElement.style.setProperty('--name-color', nameNextColor);
+            colorIndex = (colorIndex + 1) % themeColors.length;
+          }, 2000);
+        }
+      } else {
+        if (autoInterval) {
+          clearInterval(autoInterval);
+          autoInterval = null;
+          const def = '#00ff41';
+          document.documentElement.style.setProperty('--ac', def);
+          document.documentElement.style.setProperty('--ac-dim', def + '55');
+          document.documentElement.style.setProperty('--ac-glow', def + '22');
+          document.documentElement.style.setProperty('--name-color', '#6b7280');
+          if(pInput) {
+             pInput.style.color = def;
+             pInput.style.caretColor = def;
+             pInput.style.borderColor = def;
+          }
+        }
+      }
+    }
+
+    checkAutoMode();
+    setInterval(checkAutoMode, 2000);
+  </script>
+</body>
+</html>

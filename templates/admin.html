@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel | TAHMID CODEX</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root{--ac:{{ theme_color }};--ac-dim:{{ theme_color }}88;--ac-lite:{{ theme_color }}11;}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{background:#080808;color:#e5e7eb;font-family:'JetBrains Mono',monospace;min-height:100vh; overflow-x: hidden;} 
+    header{background:#0a0a0a;border-bottom:1px solid #fbbf2444;padding:12px 20px;display:flex;align-items:center;justify-content:space-between}
+    .logo{display:flex;align-items:center;gap:8px}
+    .logo-icon{font-size:18px}
+    .logo-name{color:#fbbf24;font-weight:700;font-size:15px;text-shadow:0 0 8px #fbbf24}
+    .logo-sub{color:#4b5563;font-size:11px;margin-left:6px}
+    .header-right{display:flex;gap:8px}
+    .btn{padding:5px 12px;border-radius:6px;font-family:inherit;font-size:11px;cursor:pointer;border:1px solid;text-decoration:none;display:inline-block;transition:all .2s}
+    .btn-ghost{border-color:#2a2a2a;color:#6b7280;background:transparent}
+    .btn-ghost:hover{background:#1a1a1a;color:#fff}
+    .btn-red{border-color:#ef444488;color:#ef4444;background:transparent}
+    .btn-red:hover{background:#ef444411}
+    .stats-bar{background:#0d0d0d;border-bottom:1px solid #1a1a1a;padding:12px 20px;display:flex;gap:28px;flex-wrap:wrap}
+    .stat{text-align:center}
+    .stat-num{font-size:22px;font-weight:700}
+    .stat-label{font-size:9px;color:#4b5563;letter-spacing:2px;margin-top:2px}
+    main{padding:20px;max-width:900px;margin:0 auto}
+
+    /* --- নতুন Tab ডিজাইন --- */
+    .tabs-container {
+      width: 100%;
+      overflow-x: auto;
+      white-space: nowrap;
+      display: flex;
+      justify-content: flex-start;
+      padding: 10px 0;
+      scrollbar-width: none;
+    }
+    .tabs-container::-webkit-scrollbar {
+      display: none;
+    }
+    .tabs{
+      display: flex;
+      gap: 8px;
+      background: #0d0d0d;
+      border: 1px solid #1a1a1a;
+      border-radius: 8px;
+      padding: 4px;
+      width: max-content;
+    }
+
+    /* --- আপনি যা যোগ করতে চেয়েছেন (ইমোজি উপরে) --- */
+    .tab {
+      display: flex;
+      flex-direction: column; /* ইমোজিকে লেখার উপরে নেওয়ার জন্য */
+      align-items: center;
+      justify-content: center;
+      gap: 5px; /* ইমোজি এবং লেখার মাঝখানের দূরত্ব */
+      padding: 10px 18px;
+      background: transparent;
+      border: none;
+      color: #6b7280; 
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 11px;
+      letter-spacing: 1px;
+      transition: all 0.3s ease;
+      flex-shrink: 0;
+      border-radius: 6px;
+    }
+
+    .tab.active {
+      background: #1a1a1a;
+      color: var(--ac); /* আপনার থিম কালার অনুযায়ী পরিবর্তন হবে */
+      text-shadow: 0 0 10px var(--ac);
+    }
+
+    /* ইমোজির সাইজ বড় করার জন্য প্রথম লাইনকে টার্গেট করা */
+    .tab::first-line {
+      font-size: 18px;
+    }
+    /* ----------------------------------------- */
+
+    .tab-panel{display:none}
+    .tab-panel.active{display:block}
+    .card{background:#0a0a0a;border:1px solid #1a1a1a;border-radius:10px;overflow:hidden;margin-bottom:14px}
+    .card-header{padding:10px 16px;border-bottom:1px solid #1a1a1a;font-size:11px;color:#4b5563;letter-spacing:2px}
+    .user-row{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid #0d0d0d;transition:background .15s}
+    .user-row:last-child{border-bottom:none}
+    .user-row:hover{background:#0d0d0d}
+    .user-name{font-size:14px;font-weight:700;color:var(--ac);flex:1}
+    .user-meta{font-size:11px;color:#4b5563;margin-top:3px}
+    .server-row{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid #0d0d0d;font-size:12px}
+    .server-row:last-child{border-bottom:none}
+    .badge{padding:3px 8px;border-radius:5px;font-size:10px;font-weight:700;border:1px solid}
+    .badge.running{border-color:var(--ac);color:var(--ac)}
+    .badge.stopped{border-color:#ef4444;color:#ef4444}
+    .maint-toggle{width:60px;height:28px;border-radius:14px;background:#1a1a1a;border:2px solid #333;cursor:pointer;position:relative;transition:all .3s}
+    .maint-toggle.on{background:#ef4444;border-color:#ef4444;box-shadow:0 0 12px #ef444488}
+    .toggle-dot{position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#555;transition:all .3s}
+    .maint-toggle.on .toggle-dot{left:33px;background:#fff}
+    .form-input{width:100%;padding:9px 12px;background:#111;border:1px solid #2a2a2a;border-radius:8px;color:#e5e7eb;font-family:inherit;font-size:13px;outline:none}
+    .form-input:focus{border-color:#fbbf24}
+    .save-btn{padding:9px 20px;background:transparent;border:2px solid #fbbf24;border-radius:8px;color:#fbbf24;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1px}
+    .save-btn:hover{background:#fbbf2411}
+    #toast{position:fixed;bottom:20px;right:20px;background:#0a0a0a;border:1px solid #fbbf24;border-radius:10px;padding:12px 18px;font-size:13px;color:#fbbf24;transform:translateY(80px);opacity:0;transition:all .3s;z-index:200}
+    #toast.show{transform:translateY(0);opacity:1}
+
+    .theme-grid{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;margin-bottom:20px}
+    .swatch{width:44px;height:44px;border-radius:10px;cursor:pointer;border:3px solid transparent;transition:all .2s;position:relative}
+    .swatch.active{border-color:#fff;box-shadow:0 0 14px 2px currentColor}
+    .swatch:hover{transform:scale(1.12)}
+    .swatch-label{font-size:9px;color:#6b7280;text-align:center;margin-top:4px;letter-spacing:1px}
+    .swatch-wrap{display:flex;flex-direction:column;align-items:center}
+    .custom-color-row{display:flex;gap:10px;align-items:center;margin-top:8px}
+    input[type=color]{width:44px;height:44px;border:2px solid #2a2a2a;border-radius:8px;cursor:pointer;background:none;padding:2px}
+    .apply-custom-btn{padding:9px 16px;background:transparent;border:2px solid #fbbf24;border-radius:8px;color:#fbbf24;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px}
+    .apply-custom-btn:hover{background:#fbbf2411}
+    .current-theme-preview{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#0d0d0d;border:1px solid #1a1a1a;border-radius:8px;margin-bottom:14px;font-size:12px;color:#6b7280}
+    .theme-dot{width:20px;height:20px;border-radius:50%;flex-shrink:0}
+</style>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <span class="logo-icon">🛡</span>
+      <span class="logo-name">ADMIN PANEL</span>
+      <span class="logo-sub">TAHMID CODEX</span>
+    </div>
+    <div class="header-right">
+      <a href="/dashboard" class="btn btn-ghost">↤ DASHBOARD</a>
+      <a href="/admin/logout" class="btn btn-red">LOGOUT ADMIN</a>
+    </div>
+  </header>
+
+  <div class="stats-bar">
+    <div class="stat"><div class="stat-num" style="color:var(--ac)">{{ total_users }}</div><div class="stat-label">USERS</div></div>
+    <div class="stat"><div class="stat-num" style="color:#38bdf8">{{ total_projects }}</div><div class="stat-label">PROJECTS</div></div>
+    <div class="stat"><div class="stat-num" style="color:var(--ac)">{{ running }}</div><div class="stat-label">RUNNING</div></div>
+    <div class="stat"><div class="stat-num" style="color:#c084fc">{{ total_files }}</div><div class="stat-label">FILES</div></div>
+    <div class="stat"><div class="stat-num" style="color:{% if settings.maintenance %}#ef4444{% else %}#4b5563{% endif %}">{{ 'ON' if settings.maintenance else 'OFF' }}</div><div class="stat-label">MAINTENANCE</div></div>
+  </div>
+
+  <main>
+    <div class="tabs-container">
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('users',this)">👯‍♂️<span>USERS</span></button>
+        <button class="tab" onclick="switchTab('projects',this)">📁<span>PROJECTS</span></button>
+        <button class="tab" onclick="switchTab('maintenance',this)">🔧<span>MAINTENANCE</span></button>
+        <button class="tab" onclick="switchTab('theme',this)">🎨<span>THEME</span></button>
+        <button class="tab" onclick="switchTab('logo',this)">🖼️<span>LOGO</span></button>
+        <button class="tab" onclick="switchTab('music',this)">🎵<span>MUSIC</span></button>
+        <button class="tab" onclick="switchTab('songList',this)">📜<span>SONG LIST</span></button>
+        <button class="tab" onclick="switchTab('userListDetails',this)">👤<span>USER LIST</span></button>
+        <button class="tab" onclick="switchTab('projectList', this)">📑<span>PROJECT LIST</span></button>
+      </div>
+    </div>
+  </main>
+
+  <div id="tab-userListDetails" class="tab-panel" style="display:none; padding:10px 0;"> 
+    <div class="card">
+        <div class="card-header">📊 DETAILED USER INFORMATION</div>
+        <div style="overflow-x: auto;">
+            <table border="1" style="width:100%; border-collapse: collapse; margin-top:10px; border-color: #1a1a1a; text-align: left;">
+                <thead>
+                    <tr style="background:#0d0d0d; font-size: 11px; letter-spacing: 1px;">
+                        <th style="padding:12px; color: #fbbf24;">USERNAME</th>
+                        <th style="padding:12px; color: #38bdf8;">PASSWORD</th>
+                        <th style="padding:12px; color: #ef4444;">JOINED DATE</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in users %}
+                    <tr style="border-bottom: 1px solid #1a1a1a;">
+                        <td style="padding:12px; color:var(--ac); font-weight:bold;">@{{ u.username }}</td>
+                        <td style="padding:12px; color:var(--ac); font-weight:bold;">{{ u.password }}</td>
+                        <td style="padding:12px; font-size:12px; font-weight:bold; letter-spacing:1px;">
+    <span style="color:var(--ac); filter: hue-rotate(90deg) brightness(1.5) contrast(1.2);">{{ u.joined[:4] }}</span><span style="color:#6b7280;">-</span>
+    
+    <span style="color:var(--ac); filter: hue-rotate(180deg) brightness(1.5) contrast(1.2);">{{ u.joined[5:7] }}</span><span style="color:#6b7280;">-</span>
+    
+    <span style="color:var(--ac); filter: hue-rotate(270deg) brightness(1.5) contrast(1.2);">{{ u.joined[8:10] }}</span> 
+    
+    <span style="color:var(--ac); filter: hue-rotate(45deg) brightness(1.5) contrast(1.2); margin-left:5px;">{{ u.joined[11:13] }}</span><span style="color:#6b7280;">:</span>
+    
+    <span style="color:var(--ac); filter: hue-rotate(320deg) brightness(1.5) contrast(1.2);">{{ u.joined[14:16] }}</span>
+</td>
+                          </td>
+                      </tr>
+                      {% endfor %}
+                  </tbody>
+              </table>
+          </div>
+      </div>
+    </div>
+
+    <div id="tab-projectList" class="tab-panel">
+      <div class="card">
+        <div class="card-header">📑 PROJECT MANAGEMENT LIST</div>
+        <div style="overflow-x: auto;">
+          <table border="1" style="width:100%; border-collapse: collapse; margin-top:10px; border-color: #1a1a1a; text-align: left;">
+            <thead>
+              <tr style="background:#0d0d0d; font-size: 11px; letter-spacing: 1px;">
+                <th style="padding:12px; color: #fbbf24;">PROJECT NAME</th>
+                <th style="padding:12px; color: #38bdf8;">AUTO RESET (MIN)</th>
+                <th style="padding:12px; color: #ef4444;">ACTION</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for name, cfg in servers.items() %}
+              <tr style="border-bottom: 1px solid #1a1a1a;">
+                <td style="padding:12px; color:#fff; font-weight:bold;">{{ name.upper() }}</td>
+                <td style="padding:12px;">
+  <select class="form-input" style="width: 80px; padding: 4px; font-size: 11px;" onchange="updateResetTime('{{ name }}', this.value)">
+    <option value="0" {% if cfg.reset_time == 0 %}selected{% endif %}>0m (OFF)</option>
+    <option value="5" {% if cfg.reset_time == 5 %}selected{% endif %}>5m</option>
+    <option value="10" {% if cfg.reset_time == 10 %}selected{% endif %}>10m</option>
+    <option value="30" {% if cfg.reset_time == 30 %}selected{% endif %}>30m</option>
+    <option value="60" {% if cfg.reset_time == 60 %}selected{% endif %}>1h</option>
+                  </select>
+                </td>
+                <td style="padding:12px;">
+                  <div id="ctrl-{{ name }}">
+                    {% if cfg.status == 'running' %}
+                    <button class="btn btn-red" onclick="controlProject('{{ name }}', 'stop')">STOP</button>
+                    {% else %}
+                    <button class="btn" style="border-color:var(--ac); color:var(--ac); background:transparent;" onclick="controlProject('{{ name }}', 'start')">START</button>
+                    {% endif %}
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  <div id="tab-users" class="tab-panel active">
+    <div class="card">
+      <div class="card-header">{{ total_users }} USER(S)</div>
+      {% if users %}
+      {% for u in users %}
+      <div class="user-row">
+        <div style="flex:1">
+          <div class="user-name">@{{ u.username }}</div>
+          <div class="user-meta">{{ u.projects }} projects · {{ u.running }} running · {{ u.files }} files · joined {{ u.joined[:10] if u.joined else 'N/A' }}</div>
+        </div>
+        <a href="/admin/user/{{ u.username }}/files" class="btn" style="border-color:#38bdf888;color:#38bdf8;background:transparent">Files</a>
+        <form action="/admin/user/{{ u.username }}/delete" method="POST" style="display:inline" onsubmit="return confirm('Delete user {{ u.username }} and ALL their data?')">
+          <button type="submit" class="btn btn-red">Delete</button>
+        </form>
+      </div>
+      {% endfor %}
+      {% else %}
+      <div style="padding:32px;text-align:center;color:#374151;font-size:13px">No users yet.</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div id="tab-projects" class="tab-panel">
+    <div class="card">
+      <div class="card-header">{{ total_projects }} PROJECT(S)</div>
+      {% for name, cfg in servers.items() %}
+      <div class="server-row">
+        <span style="font-size:14px;font-weight:700;color:#fff;flex:1">{{ name.upper() }}</span>
+        <span style="color:#6b7280;font-size:12px">@{{ cfg.get('owner','?') }}</span>
+        <span style="color:#4b5563;font-size:11px">{{ cfg.runtime }}</span>
+        <span class="badge {{ cfg.status }}">{{ cfg.status.upper() }}</span>
+        <a href="/server/{{ name }}" class="btn" style="border-color:#2a2a2a;color:#6b7280;background:transparent;font-size:11px">View</a>
+      </div>
+      {% else %}
+      <div style="padding:24px;text-align:center;color:#374151;font-size:13px">No projects yet.</div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div id="tab-music" class="tab-panel">
+  <div class="card" style="padding:20px">
+    <div class="card-header" style="padding:0 0 14px;border:none">UPLOAD BACKGROUND MUSIC</div>
+    
+    <div style="background:#0d0d0d; padding:20px; border-radius:10px; text-align:center;">
+        <div style="font-size:11px; color:#6b7280; margin-bottom:15px; letter-spacing:1px;">UPLOAD AUDIO FILE (.mp3, .wav)</div>
+        
+        <input type="file" id="audioFile" accept="audio/*" style="display:none">
+        <label for="audioFile" class="btn btn-ghost" style="padding:10px 20px; border:1px dashed var(--ac); cursor:pointer; display:block; margin-bottom:15px;">
+            📁 SELECT AUDIO FILE
+        </label>
+        
+        <div id="fileNameDisplay" style="font-size:12px; color:var(--ac); margin-bottom:15px;">No file selected</div>
+        
+        <button onclick="uploadMusic()" class="save-btn" id="uploadBtn">UPLOAD & SET MUSIC</button>
+    </div>
+    <div style="margin-top:20px;">
+        <div style="font-size:11px; color:#6b7280; margin-bottom:8px; letter-spacing:1px;">OR USE DIRECT AUDIO LINK</div>
+        <div style="display:flex; gap:10px;">
+            <input type="text" id="musicUrlInput" class="form-input" placeholder="https://example.com/music.mp3" value="{{ settings.get('music_url', '') }}">
+            <button onclick="saveMusicUrl()" class="save-btn">SAVE LINK</button>
+        </div>
+    </div>
+  </div>
+</div>
+
+<div id="tab-songList" class="tab-panel" style="display:none; padding:20px;"> 
+    <h3>Song List</h3> 
+    <div id="song-list-container"></div> 
+</div>
+
+<script>
+// ফাইল সিলেক্ট করলে নাম দেখানোর জন্য
+document.getElementById('audioFile').addEventListener('change', function(e) {
+    const fileName = e.target.files[0] ? e.target.files[0].name : "No file selected";
+    document.getElementById('fileNameDisplay').textContent = fileName;
+});
+
+// ফাইল আপলোড করার ফাংশন
+async function uploadMusic() {
+    const fileInput = document.getElementById('audioFile');
+    
+    if (fileInput.files.length === 0) return toast('Please select a file first!');
+    
+    const formData = new FormData();
+    formData.append('audio', fileInput.files[0]);
+    
+    const btn = document.getElementById('uploadBtn');
+    btn.textContent = "UPLOADING...";
+    btn.disabled = true;
+
+    try {
+        const r = await fetch('/admin/music/upload', {
+            method: 'POST',
+            body: formData
+        });
+        const d = await r.json();
+        if (d.success) {
+            toast('Music uploaded successfully!');
+            document.getElementById('musicUrlInput').value = d.url;
+            // আপলোড সফল হলে লিস্ট আপডেট করা
+            if (document.getElementById('tab-songList').style.display !== 'none') {
+                loadSongs();
+            }
+        } else {
+            toast('Upload failed!');
+        }
+    } catch (e) {
+        toast('Error uploading file');
+    } finally {
+        btn.textContent = "UPLOAD & SET MUSIC";
+        btn.disabled = false;
+    }
+}
+
+// গান লোড করার ফাংশন (হেডার ফিক্সড কালার এবং ডাটা অটো-কালারসহ)
+function loadSongs() {
+    fetch('/get_songs')
+    .then(response => response.json())
+    .then(data => {
+        // টেবিলের ডিজাইন এবং স্টাইল
+        let table = '<table border="1" style="width:100%; border-collapse: collapse; margin-top:10px; border-color: #1a1a1a;">';
+        
+        // ১. উপরের হেডার তিনটির রঙ সবসময় ফিক্সড থাকবে
+        table += `<tr style="background:#0d0d0d; font-size: 11px; letter-spacing: 1px;">
+                    <th style="padding:10px; color: #fbbf24;">ID</th>          <th style="padding:10px; color: #38bdf8;">SONG NAME</th>   <th style="padding:10px; color: #ef4444;">ACTION</th>      </tr>`;
+        
+        if(data.length === 0) {
+            table += '<tr><td colspan="3" style="text-align:center; padding:20px; color:#4b5563;">No songs found</td></tr>';
+        } else {
+            data.forEach(song => {
+                table += `<tr>
+                    <td style="padding:12px; text-align:center; font-weight:bold; color:var(--ac); transition: color 0.5s;">${song.id}</td>
+                    <td style="padding:12px; color:var(--ac); transition: color 0.5s; font-size:13px;">${song.name}</td>
+                    <td style="padding:12px; text-align:center;">
+                        <button onclick="deleteSong(${song.id})" class="btn btn-red" style="font-size:10px; padding:4px 8px;">Delete</button>
+                    </td>
+                </tr>`;
+            });
+        }
+        
+        table += '</table>';
+        document.getElementById('song-list-container').innerHTML = table;
+    })
+    .catch(err => console.error("Error loading songs:", err));
+}
+
+// গান ডিলিট করার ফাংশন
+function deleteSong(id) {
+    if(confirm('Are you sure you want to delete this song?')) {
+        fetch(`/delete_song/${id}`, { method: 'DELETE' })
+        .then(response => response.json())
+        .then(data => {
+            toast(data.message);
+            loadSongs(); // ডিলিট করার পর লিস্ট আপডেট হবে
+        })
+        .catch(err => toast('Error deleting song'));
+    }
+}
+
+// ট্যাব সুইচ করার ফাংশন
+function switchTab(tabId, element) {
+    // সব প্যানেল হাইড করা
+    document.querySelectorAll('.tab-panel').forEach(p => p.style.display = 'none');
+    
+    // টার্গেট প্যানেল শো করা
+    const targetPanel = document.getElementById('tab-' + tabId);
+    if (targetPanel) {
+        targetPanel.style.display = 'block';
+    }
+    
+    // যদি সং লিস্ট ট্যাব হয় তবে গান লোড করা
+    if(tabId === 'songList') {
+        loadSongs();
+    }
+}
+
+
+// লিঙ্ক সেভ করার ফাংশন
+async function saveMusicUrl() {
+    const url = document.getElementById('musicUrlInput').value.trim();
+    const r = await fetch('/admin/music', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ music_url: url })
+    });
+    const d = await r.json();
+    if(d.success) toast('Music link updated!');
+}
+</script>    
+
+    <div id="tab-maintenance" class="tab-panel">
+      <div class="card" style="padding:20px">
+        <div class="card-header" style="padding:0 0 14px;border:none">MAINTENANCE MODE</div>
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px">
+          <div class="maint-toggle {% if settings.maintenance %}on{% endif %}" id="maintToggle" onclick="toggleMaint()">
+            <div class="toggle-dot"></div>
+          </div>
+          <span style="font-weight:700;font-size:14px;color:{% if settings.maintenance %}#ef4444{% else %}#6b7280{% endif %}" id="maintLabel">
+            {{ 'MAINTENANCE ON' if settings.maintenance else 'MAINTENANCE OFF' }}
+          </span>
+        </div>
+        <div style="margin-bottom:12px">
+          <div style="font-size:11px;color:#6b7280;margin-bottom:6px;letter-spacing:1px">MAINTENANCE MESSAGE</div>
+          <textarea id="maintMsg" class="form-input" style="resize:vertical;min-height:80px">{{ settings.get('maintenance_msg','System under maintenance.') }}</textarea>
+        </div>
+        <button class="save-btn" onclick="saveMaint()">SAVE MESSAGE</button>
+        <div style="margin-top:16px;background:#0d0d0d;border-radius:8px;padding:12px 14px;font-size:12px;color:#6b7280;line-height:1.6">
+          When maintenance mode is <span style="color:#ef4444">ON</span>, users will see the maintenance message instead of accessing their projects.
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-theme" class="tab-panel">
+      <div class="card" style="padding:20px">
+        <div class="card-header" style="padding:0 0 14px;border:none">UI THEME COLOR</div>
+        <div class="current-theme-preview">
+          <div class="theme-dot" id="currentDot" style="background:{{ theme_color }};"></div>
+          <span>Current: <span id="currentColorLabel" style="color:#fff">{{ theme_color }}</span></span>
+        </div>
+        
+        <div style="font-size:11px;color:#6b7280;letter-spacing:1px;margin-bottom:10px">PRESET COLORS</div>
+        <div class="theme-grid">
+          {% for name, color in theme_presets.items() %}
+          <div class="swatch-wrap">
+            <div class="swatch {% if color == theme_color %}active{% endif %}"
+                 style="background:{{ color }};"
+                 onclick="applyTheme('{{ color }}', this)">
+            </div>
+            <div class="swatch-label">{{ name.upper() }}</div>
+          </div>
+          {% endfor %}
+        </div>
+        <button class="btn btn-ghost" onclick="startAuto()">Auto ON</button>      
+        <button class="btn btn-ghost" onclick="stopAuto()">Auto OFF</button>
+      <div style="margin-top:20px;background:#0d0d0d;border-radius:8px;padding:12px 14px;font-size:12px;color:#6b7280;line-height:1.7">
+          The theme color changes all accent colors across the login page, dashboard, and server pages — buttons, borders, glows, and highlights. The admin panel always stays amber (gold) for distinction.
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-logo" class="tab-panel">
+      <div class="card" style="padding:20px">
+        <div class="card-header" style="padding:0 0 14px;border:none">LOGIN PAGE LOGO CHANGE</div>
+        <div style="display:flex; flex-direction:column; align-items:center; gap:15px; background:#0d0d0d; padding:20px; border-radius:10px;">
+          <div style="font-size:11px; color:#6b7280; letter-spacing:1px;">CURRENT LOGO PREVIEW</div>
+          <img id="logoPreview" src="{{ logo_url }}" style="width:80px; height:80px; border-radius:50%; border:2px solid var(--ac); object-fit:cover;">
+        </div>       
+        <div style="margin-top:20px;">
+          <div style="font-size:11px; color:#6b7280; margin-bottom:8px; letter-spacing:1px;">IMAGE DIRECT LINK (URL)</div>
+          
+          <form action="/admin/logo" method="POST" style="display:flex; gap:10px;">
+            <input type="text" id="newLogoUrl" name="logo_url" class="form-input" placeholder="https://i.postimg.cc/..." value="{{ logo_url }}">
+            <button type="submit" class="save-btn">UPDATE LOGO</button>
+          </form>
+          
+          <p style="font-size:10px; color:#4b5563; margin-top:8px;">Paste a direct image link from Postimg, ImgBB or any hosting site.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div id="toast"></div>
+  
+  <script>
+    // ১. ট্যাব সুইচ করার একক ও সঠিক ফাংশন
+    function switchTab(tabId, element) {
+        // সব প্যানেল হাইড করা
+        document.querySelectorAll('.tab-panel').forEach(p => {
+            p.style.display = 'none';
+            p.classList.remove('active');
+        });
+        // সব ট্যাব থেকে active ক্লাস সরানো
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        
+        // টার্গেট প্যানেল শো করা
+        const targetPanel = document.getElementById('tab-' + tabId);
+        if (targetPanel) {
+            targetPanel.style.display = 'block';
+            targetPanel.classList.add('active');
+        }
+        // বাটনে active ক্লাস দেওয়া
+        if(element) element.classList.add('active');
+        
+        // যদি সং লিস্ট ট্যাব হয় তবে গান লোড করা
+        if(tabId === 'songList') {
+            loadSongs();
+        }
+    }
+
+    // ২. টোস্ট মেসেজ ফাংশন
+    function toast(msg) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    // ৩. প্রজেক্ট কন্ট্রোল (Start/Stop) ফাংশন
+    async function controlProject(name, action) {
+        try {
+            const r = await fetch('/admin/project/control', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ name, action })
+            });
+            const d = await r.json();
+            if(d.success) {
+                toast(`Project ${name} ${action}ed!`);
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                toast('Failed to update project');
+            }
+        } catch(e) { toast('Server Error!'); }
+    }
+
+    // ৪. অটো রিসেট টাইম আপডেট
+    async function updateResetTime(name, minutes) {
+        const r = await fetch('/admin/project/update_reset', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ name, minutes: parseInt(minutes) })
+        });
+        const d = await r.json();
+        if(d.success) toast(`Reset time updated to ${minutes}m`);
+    }
+
+    // ৫. মিউজিক আপলোড এবং গান লোড
+    async function uploadMusic() {
+        const fileInput = document.getElementById('audioFile');
+        if (fileInput.files.length === 0) return toast('Select a file!');
+        const formData = new FormData();
+        formData.append('audio', fileInput.files[0]);
+        const btn = document.getElementById('uploadBtn');
+        btn.textContent = "UPLOADING...";
+        try {
+            const r = await fetch('/admin/music/upload', { method: 'POST', body: formData });
+            const d = await r.json();
+            if (d.success) {
+                toast('Music uploaded!');
+                document.getElementById('musicUrlInput').value = d.url;
+                loadSongs();
+            }
+        } catch (e) { toast('Upload failed!'); }
+        finally { btn.textContent = "UPLOAD & SET MUSIC"; }
+    }
+
+    function loadSongs() {
+        fetch('/get_songs').then(res => res.json()).then(data => {
+            let table = '<table border="1" style="width:100%; border-collapse: collapse; margin-top:10px; border-color: #1a1a1a;">';
+            table += `<tr style="background:#0d0d0d; font-size: 11px;"><th style="padding:10px; color:#fbbf24;">ID</th><th style="padding:10px; color:#38bdf8;">NAME</th><th style="padding:10px; color:#ef4444;">ACTION</th></tr>`;
+            data.forEach(song => {
+                table += `<tr><td style="padding:10px; text-align:center; color:var(--ac);">${song.id}</td><td style="padding:10px; color:var(--ac);">${song.name}</td><td style="padding:10px; text-align:center;"><button onclick="deleteSong(${song.id})" class="btn btn-red">Delete</button></td></tr>`;
+            });
+            document.getElementById('song-list-container').innerHTML = table + '</table>';
+        });
+    }
+
+    // ৬. মেইনটেন্যান্স এবং থিম লজিক (আপনার দেওয়া কোড অনুযায়ী)
+    let maintOn = {{ 'true' if settings.maintenance else 'false' }};
+    function toggleMaint() {
+        maintOn = !maintOn;
+        const tog = document.getElementById('maintToggle'), lbl = document.getElementById('maintLabel');
+        tog.classList.toggle('on', maintOn);
+        lbl.textContent = maintOn ? 'MAINTENANCE ON' : 'MAINTENANCE OFF';
+        lbl.style.color = maintOn ? '#ef4444' : '#6b7280';
+        saveMaint();
+    }
+
+    async function saveMaint() {
+        const msg = document.getElementById('maintMsg').value;
+        await fetch('/admin/maintenance', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ enabled: maintOn, message: msg })
+        });
+        toast('Maintenance saved');
+    }
+
+    async function applyTheme(color, swatchEl) {
+        const r = await fetch('/admin/theme', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({color}) });
+        if((await r.json()).success) {
+            document.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
+            if(swatchEl) swatchEl.classList.add('active');
+            document.documentElement.style.setProperty('--ac', color);
+            if(document.getElementById('currentDot')) document.getElementById('currentDot').style.background = color;
+        }
+    }
+    
+    // ঠিক এইখানে ফাংশনটি পেস্ট করুন
+    async function updateResetTime(name, minutes) {
+        const mins = parseInt(minutes);
+        try {
+            const r = await fetch('/admin/project/update_reset', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ name: name, minutes: mins })
+            });
+            const d = await r.json();
+            if(d.success) {
+                if(mins === 0) {
+                    toast(`Auto reset turned OFF for ${name}`);
+                } else {
+                    toast(`Auto reset set to ${mins} minutes for ${name}`);
+                }
+            } else {
+                toast('Failed to update reset time');
+            }
+        } catch(e) {
+            toast('Connection error!');
+        }
+    }
+    
+    const logoForm = document.querySelector('form[action="/admin/logo"]');
+    if(logoForm) {
+      logoForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const url = document.getElementById('newLogoUrl').value.trim();
+        const r = await fetch('/admin/logo', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ logo_url: url })
+        });
+        const d = await r.json();
+        if(d.success) {
+          document.getElementById('logoPreview').src = url;
+          toast('Logo updated!');
+        }
+      });
+    }
+
+    // অটো থিম লজিক
+    let interval = null;
+    const colors = ["#a855f7", "#00ff41", "#38bdf8", "#ef4444", "#fbbf24"];
+    let colorIdx = 0;
+
+    function startAuto() {
+        if (interval) return;
+        localStorage.setItem("autoThemeState", "on");
+        interval = setInterval(() => {
+            applyTheme(colors[colorIdx]);
+            colorIdx = (colorIdx + 1) % colors.length;
+        }, 2000);
+        toast('Auto Theme ON');
+    }
+
+    function stopAuto() {
+        if (interval) { clearInterval(interval); interval = null; }
+        localStorage.setItem("autoThemeState", "off");
+        toast('Auto Theme OFF');
+    }
+
+    window.addEventListener("load", () => {
+        if (localStorage.getItem("autoThemeState") === "on") startAuto();
+    });
+</script>
+</body>
+</html>
