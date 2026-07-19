@@ -174,7 +174,6 @@ def check_server_expiry(name, data=None):
                     cfg["status"] = "expired"
                     cfg["pid"] = None
                     data["servers"][name] = cfg
-                    data["servers"][name] = cfg
                     save_data(data)
                 return True
         except Exception:
@@ -1759,8 +1758,11 @@ def get_servers():
             
     return jsonify({"servers": user_servers})
 
+# ─── ফিক্সড রুটস (কনফ্লিক্ট দূর করা হলো) ───────────────────────────────────────────
 @app.route('/premium')
-def premium(): return render_template('dashboard.html') 
+@login_required
+def premium(): 
+    return redirect(url_for('dashboard.html')) 
 
 @app.route('/free/')
 def free(): return render_template('free.html')
@@ -1948,10 +1950,8 @@ def run_telegram_bot():
     
     print("Telegram Bot is running smoothly in an isolated thread...")
     
-    loop.run_until_complete(application.initialize())
-    loop.run_until_complete(application.updater.start_polling(allowed_updates=Update.ALL_TYPES))
-    loop.run_until_complete(application.start())
-    loop.run_forever()
+    # ক্রুসিয়াল ফিক্স: লুপকে ফরেভার দিয়ে ব্লক না করে রান_পোলিং সচল রাখা হলো
+    application.run_polling(allowed_updates=Update.ALL_TYPES)
 
 
 # ─── Healthcheck Route Added (রেলওয়ে রান করানোর জন্য ক্রুসিয়াল ফিক্স) ───────────────────
