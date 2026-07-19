@@ -1,0 +1,74 @@
+{
+  "servers": {
+    "free-python-yasinbhai-5168": {
+      "name": "free-python-yasinbhai-5168",
+      "owner": "YASIN\u3005BHAI",
+      "owner_email": "mdy3424@gmail.com",
+      "runtime": "python",
+      "status": "stopped",
+      "main_file": "main.py",
+      "port": 8080,
+      "packages": [
+        {
+          "name": "telebot",
+          "version": "latest",
+          "installed_at": "2026-07-19T14:44:36.005253"
+        }
+      ],
+      "pid": null,
+      "created": "2026-07-19T13:28:13.044142",
+      "expired_at": "2026-07-24T13:28:13.044142",
+      "ram_limit": "256MB",
+      "cpu_limit": "25%",
+      "storage_limit": "1GB",
+      "plan_type": "free",
+      "plan_name": "Python",
+      "duration_type": "5days",
+      "auto_reset": {
+        "enabled": false,
+        "years": 0,
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    }
+  },
+  "users": {
+    "YASIN577": {
+      "fname": "YASIN577",
+      "lname": "",
+      "joined": "2026-07-18T12:58:53.641562",
+      "password_hash": "21f1df4cca171176e1e7f1e5744cebac5eff81ee761b6e695d2a2b37b0f8d49d",
+      "raw_password": "gggggg",
+      "email": "yasin56@gmail.com",
+      "pfp": "default.png",
+      "server_limit": 10,
+      "role": "free",
+      "status": "active",
+      "coins": 500,
+      "last_coin_claim": null,
+      "free_server_claimed": true
+    },
+    "YASIN\u3005BHAI": {
+      "fname": "YASIN\u3005BHAI",
+      "lname": "",
+      "joined": "2026-07-19T13:27:55.880713",
+      "password_hash": "21f1df4cca171176e1e7f1e5744cebac5eff81ee761b6e695d2a2b37b0f8d49d",
+      "raw_password": "gggggg",
+      "email": "mdy3424@gmail.com",
+      "pfp": "default.png",
+      "server_limit": 10,
+      "role": "free",
+      "status": "active",
+      "coins": 0,
+      "last_coin_claim": null,
+      "free_server_claimed": true
+    }
+  },
+  "settings": {
+    "maintenance": false,
+    "maintenance_msg": "System under maintenance.",
+    "theme_color": "#a855f7"
+  }
+}
