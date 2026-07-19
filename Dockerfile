@@ -1,25 +1,22 @@
-# পাইথনের অফিসিয়াল ইমেজ ব্যবহার করা হচ্ছে (সঠিক ট্যাগসহ)
-FROM python:3.11.0-slim
+FROM python:3.10-slim
 
-# কাজের ডিরেক্টরি সেট করা
-WORKDIR /app
-
-# সিস্টেমের প্রয়োজনীয় টুলস ইনস্টল করা
-RUN apt-get update && apt-get install -y \
+# ২. psutil এর জন্য প্রয়োজনীয় C লাইব্রেরি ইনস্টল করা (যদি psutil লাগে)
+RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
+    gcc \
     && rm -rf /var/lib/apt/lists/*
 
-# requirements.txt ফাইলটি কপি করা
+# ৩. ওয়ার্কিং ডিরেক্টরি সেট করা
+WORKDIR /app
+
+# ৪. ফাইলগুলো ডকার ইমেজে কপি করা
 COPY requirements.txt .
 
-# লাইব্রেরিগুলো ইনস্টল করা
+# ৫. ডিপেন্ডেন্সি ইনস্টল করা
 RUN pip install --no-cache-dir -r requirements.txt
 
-# প্রজেক্টের সব ফাইল কপি করা
+# ৬. বাকি সব কোড কপি করা
 COPY . .
 
-# পোর্টের জন্য এনভায়রনমেন্ট ভেরিয়েবল (Render সাধারণত $PORT ব্যবহার করে)
-ENV PORT=8080
-
-# অ্যাপ রান করার কমান্ড
-CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:$PORT app:app"]
+# ৭. অ্যাপ রান করার কমান্ড (রেলওয়ে এটি ড্যাশবোর্ড থেকেও হ্যান্ডেল করতে পারে)
+CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:8080", "--workers", "2", "--timeout", "120"]
