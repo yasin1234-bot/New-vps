@@ -1933,7 +1933,10 @@ async def handle_admin_reply(update: Update, context: ContextTypes.DEFAULT_TYPE)
     else:
         await update.message.reply_text("❌ Sorry, no user ID associated with this message was found.")
 
+# আপনার কোডের এই অংশটি পরিবর্তন করুন
+
 def run_telegram_bot():
+    # রেলওয়ের জন্য একটি নতুন ইভেন্ট লুপ তৈরি এবং সেট করা
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     
@@ -1948,15 +1951,12 @@ def run_telegram_bot():
         MessageHandler(filters.TEXT & ~filters.COMMAND & ~filters.Chat(ADMIN_ID), handle_user_message)
     )
     
-    print("Telegram Bot is running smoothly in an isolated thread...")
+    print("Telegram Bot is initializing...")
     
-    # ক্রুসিয়াল ফিক্স: লুপ জ্যাম বা ব্লকিং এড়াতে asyncio ইভেন্ট ড্রাইভেন শুরু করা হলো
-    loop.run_until_complete(application.initialize())
-    loop.run_until_complete(application.start())
-    loop.run_until_complete(application.updater.start_polling(allowed_updates=Update.ALL_TYPES))
-    loop.run_forever()
+    # run_polling সরাসরি ব্যবহার করলে এটি ব্যাকগ্রাউন্ড থ্রেডে ব্লকিং ছাড়াই সুন্দরভাবে চলবে
+    application.run_polling(allowed_updates=Update.ALL_TYPES, close_loop=False)
 
-# ─── Healthcheck Route Added (রেলওয়ে রান করানোর জন্য ক্রুসিয়াল ফিক্স) ───────────────────
+# ─── Healthcheck Route ───────────────────────────────────────────────────
 @app.route('/health')
 def railway_healthcheck():
     return "OK", 200
@@ -1967,9 +1967,12 @@ with app.app_context():
     db.create_all()
 
 if __name__ == '__main__':
+    # প্রথমে বটকে আলাদা থ্রেডে চালু করা হচ্ছে
     bot_thread = threading.Thread(target=run_telegram_bot)
     bot_thread.daemon = True
     bot_thread.start()
 
+    # রেলওয়ের পোর্ট রিড করা
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=False)
+    # debug=False রাখা আবশ্যক যাতে থ্রেড ডাবল রান না হয়
+    app.run(host="0.0.0.0", port=port, debug=False, use_reloader=False)
