@@ -846,16 +846,14 @@ def server_live_usage(name):
     ram_usage = 0.0
     storage_usage = 0.0
 
-    # প্রসেস যদি রানিং থাকে তাহলে লাইভ CPU এবং RAM বের করবে
     if pid and is_process_alive(pid):
         try:
             p = psutil.Process(pid)
             cpu_usage = p.cpu_percent(interval=None)
-            ram_usage = p.memory_info().rss / (1024 * 1024) # MB-তে রূপান্তর
+            ram_usage = p.memory_info().rss / (1024 * 1024) 
         except Exception:
             pass
 
-    # স্টোরেজ সাইজ হিসাব (extracted ফোল্ডারের ফাইল সাইজ)
     extract_dir = SERVERS_DIR / name / "extracted"
     if extract_dir.exists():
         total_size = 0
@@ -864,7 +862,7 @@ def server_live_usage(name):
                 fp = os.path.join(dirpath, f)
                 if not os.path.islink(fp):
                     total_size += os.path.getsize(fp)
-        storage_usage = total_size / (1024 * 1024) # MB-তে রূপান্তর
+        storage_usage = total_size / (1024 * 1024) 
 
     return jsonify({
         "success": True,
@@ -974,7 +972,6 @@ def server_detail(name):
         extract_dir = SERVERS_DIR / name / "extracted"
         files = list_files(extract_dir)
         
-        # লাইভ রিয়েল ডেটা প্রাথমিক রেন্ডারিং-এর জন্য
         cpu_usage = 0.0
         ram_usage = 0.0
         if pid and is_process_alive(pid):
@@ -1758,7 +1755,7 @@ def get_servers():
             
     return jsonify({"servers": user_servers})
 
-# ─── ফিক্সড রুটস (কনф্লিক্ট দূর করা হলো) ───────────────────────────────────────────
+# ─── ফিক্সড রুটস ───────────────────────────────────────────────────────────
 @app.route('/premium')
 @login_required
 def premium(): 
@@ -1933,10 +1930,9 @@ async def handle_admin_reply(update: Update, context: ContextTypes.DEFAULT_TYPE)
     else:
         await update.message.reply_text("❌ Sorry, no user ID associated with this message was found.")
 
-# আপনার কোডের এই অংশটি পরিবর্তন করুন
 
+# থ্রেডের ভেতর রান করার জন্য সুনির্দিষ্ট এসিনক্রোনাস ফাংশন
 def run_telegram_bot():
-    # রেলওয়ের জন্য একটি নতুন ইভেন্ট লুপ তৈরি এবং সেট করা
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     
@@ -1951,10 +1947,13 @@ def run_telegram_bot():
         MessageHandler(filters.TEXT & ~filters.COMMAND & ~filters.Chat(ADMIN_ID), handle_user_message)
     )
     
-    print("Telegram Bot is initializing...")
+    print("Telegram Bot is initializing via custom thread loop...")
     
-    # run_polling সরাসরি ব্যবহার করলে এটি ব্যাকগ্রাউন্ড থ্রেডে ব্লকিং ছাড়াই সুন্দরভাবে চলবে
-    application.run_polling(allowed_updates=Update.ALL_TYPES, close_loop=False)
+    # রেলওয়ের ব্যাকগ্রাউন্ডে নন-ব্লকিং রাখার নিরাপদ উপায়
+    loop.run_until_complete(application.initialize())
+    loop.run_until_complete(application.start())
+    loop.run_until_complete(application.updater.start_polling(allowed_updates=Update.ALL_TYPES))
+    loop.run_forever()
 
 # ─── Healthcheck Route ───────────────────────────────────────────────────
 @app.route('/health')
@@ -1967,12 +1966,11 @@ with app.app_context():
     db.create_all()
 
 if __name__ == '__main__':
-    # প্রথমে বটকে আলাদা থ্রেডে চালু করা হচ্ছে
+    # বটের জন্য ব্যাকগ্রাউন্ড থ্রেড চালু
     bot_thread = threading.Thread(target=run_telegram_bot)
     bot_thread.daemon = True
     bot_thread.start()
 
     # রেলওয়ের পোর্ট রিড করা
     port = int(os.environ.get("PORT", 5000))
-    # debug=False রাখা আবশ্যক যাতে থ্রেড ডাবল রান না হয়
     app.run(host="0.0.0.0", port=port, debug=False, use_reloader=False)
