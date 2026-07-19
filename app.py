@@ -174,6 +174,7 @@ def check_server_expiry(name, data=None):
                     cfg["status"] = "expired"
                     cfg["pid"] = None
                     data["servers"][name] = cfg
+                    data["servers"][name] = cfg
                     save_data(data)
                 return True
         except Exception:
@@ -1087,7 +1088,7 @@ def delete_all_files(server_name):
 
 
 @app.route('/server/<server_name>/files/delete', methods=['POST'])
-@login_required  # সিকিউরিটির জন্য এটি যুক্ত করা হয়েছে
+@login_required  
 def delete_file(server_name):
     if check_server_expiry(server_name):
         return jsonify({"success": False, "error": "Expired server"}), 403
@@ -1098,18 +1099,16 @@ def delete_file(server_name):
     if not file_name:
         return jsonify({'success': False, 'error': 'No file name provided'}), 400
         
-    # ডিরেক্টরি পাথ ঠিক করা হয়েছে (delete_all_files এর সাথে মিল রেখে)
     base_dir = (SERVERS_DIR / server_name / "extracted").resolve()
     file_path = (base_dir / file_name).resolve()
     
     try:
-        # ডিরেক্টরি ট্রাভার্সাল অ্যাটাক প্রটেকশন (নিরাপত্তা নিশ্চিত করা)
         if base_dir in file_path.parents or file_path == base_dir:
             if file_path.exists():
                 if file_path.is_dir():
-                    shutil.rmtree(file_path) # ডিরেক্টরি এবং তার ভেতরের সব ডিলিট করবে
+                    shutil.rmtree(file_path) 
                 else:
-                    os.unlink(file_path) # ফাইল বা সিমলিংক ডিলিট করবে
+                    os.unlink(file_path) 
                 return jsonify({'success': True})
             else:
                 return jsonify({'success': False, 'error': 'File not found'}), 404
@@ -1953,6 +1952,13 @@ def run_telegram_bot():
     loop.run_until_complete(application.updater.start_polling(allowed_updates=Update.ALL_TYPES))
     loop.run_until_complete(application.start())
     loop.run_forever()
+
+
+# ─── Healthcheck Route Added (রেলওয়ে রান করানোর জন্য ক্রুসিয়াল ফিক্স) ───────────────────
+@app.route('/')
+def railway_healthcheck():
+    return "OK", 200
+
 
 # ─── Server initialization ───────────────────────────────────────────────────
 
