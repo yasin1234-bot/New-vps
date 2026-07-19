@@ -1937,9 +1937,10 @@ async def handle_admin_reply(update: Update, context: ContextTypes.DEFAULT_TYPE)
         await update.message.reply_text("❌ Sorry, no user ID associated with this message was found.")
 
 
-# থ্রেড সেফ ইভেন্ট লুপ ফিক্সড ফাংশন
+# ─── থ্রেড সেফ ইভেন্ট লুপ ফিক্সড ফাংশন ──────────────────────────────────
+
 def run_telegram_bot():
-    # সম্পূর্ণ নতুন ইভেন্ট লুপ ম্যানেজমেন্ট
+    # ব্যাকগ্রাউন্ড থ্রেডের জন্য সম্পূর্ণ আলাদা ও ডেডিকেটেড ইভেন্ট লুপ তৈরি
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     
@@ -1954,9 +1955,13 @@ def run_telegram_bot():
         MessageHandler(filters.TEXT & ~filters.COMMAND & ~filters.Chat(ADMIN_ID), handle_user_message)
     )
     
-    print("Telegram Bot is running smoothly on background thread...")
-    # লুপ ব্লক না করে সঠিক মেথড ব্যবহার করা হয়েছে
-    application.run_polling(close_loop=False)
+    print("Telegram Bot is running smoothly on a background thread...")
+    
+    # এসিঙ্ক পদ্ধতিতে পোলিং চালু করা হচ্ছে যাতে মেইন লুপ ব্লক না হয়
+    loop.run_until_complete(application.initialize())
+    loop.run_until_complete(application.updater.start_polling())
+    loop.run_until_complete(application.start())
+    loop.run_forever()
 
 # ─── Healthcheck Route ───────────────────────────────────────────────────
 @app.route('/health')
